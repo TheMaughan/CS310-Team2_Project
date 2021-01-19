@@ -1,5 +1,15 @@
 # Overview
 
+This repository contains 3 projects:
+
+* Android Mobile App using either Java or Kotlin
+* Web App using Django and Python
+* Game using Python with either the Arcade or PyGame library
+
+[I-Learn Project Description](https://byui-cse.github.io/cse310-course/modules/team_project_description.html)
+
+-----------------------------------------------------------------
+
 This is the README.md file to be edited at a future date...
 
 [Watch this vid if your code is making you cry](https://www.youtube.com/watch?v=e1GW4OwV8fc)
