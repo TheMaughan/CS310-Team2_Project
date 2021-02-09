@@ -25,7 +25,14 @@ class MyGame(arcade.Window):
 
     def setup(self):
         """ Set up the game here. Call this function to restart the game. """
-        pass
+        
+	
+	
+	# Create the 'physics engine'
+        #self.physics_engine = arcade.PhysicsEnginePlatformer(self.player_sprite,self.platfrom_list,GRAVITY)
+                                                             
+                                                             
+
 
     def on_draw(self):
         """ Render the screen. """
