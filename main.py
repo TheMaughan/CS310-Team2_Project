@@ -92,7 +92,7 @@ class MyGame(arcade.Window):
         
         # Create the Sprite lists
         self.player_list = arcade.SpriteList()
-	self.platform = arcade.SpriteList()
+	    self.platform = arcade.SpriteList()
 
         # Set up the player Change this
         self.player_sprite = Car("car1.png", SPRITE_SCALING)
