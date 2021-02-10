@@ -215,6 +215,46 @@ class MyGame(arcade.Window):
             self.total_time -= delta_time
 	"""
 
+        """
+        In my code I reviewed, the scrolling was done in on_update
+        This is the code directly from the tutorial I found:
+
+        #This is the global variable used to determine when to screen scroll. It's in pixels.
+        VIEWPORT_MARGIN = 250
+
+        # Keep track of if we changed the boundary. We don't want to call the
+        # set_viewport command if we didn't change the view port.
+        changed = False
+
+        # Scroll left
+        left_boundary = self.view_left + VIEWPORT_MARGIN
+        if self.player_sprite.left < left_boundary:
+            self.view_left -= left_boundary - self.player_sprite.left
+            changed = True
+
+        # Scroll right
+        right_boundary = self.view_left + SCREEN_WIDTH - VIEWPORT_MARGIN
+        if self.player_sprite.right > right_boundary:
+            self.view_left += self.player_sprite.right - right_boundary
+            changed = True
+
+        # Scroll up
+        top_boundary = self.view_bottom + SCREEN_HEIGHT - VIEWPORT_MARGIN
+        if self.player_sprite.top > top_boundary:
+            self.view_bottom += self.player_sprite.top - top_boundary
+            changed = True
+
+        # Scroll down
+        bottom_boundary = self.view_bottom + VIEWPORT_MARGIN
+        if self.player_sprite.bottom < bottom_boundary:
+            self.view_bottom -= bottom_boundary - self.player_sprite.bottom
+            changed = True
+
+
+        I think we might have some difficulty with making this to fit to a certain sized platform area. 
+        In the example I added a box around the maze area to limit where the player can go.
+        """
+
     def on_key_press(self, key, modifiers):
         """Called whenever a key is pressed. """
 
