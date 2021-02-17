@@ -17,6 +17,8 @@ MOVEMENT_SPEED = 3
 GRAVITY = .09 #change this to enable jumping
 ANGLE_SPEED = 3
 
+VIEWPORT_MARGIN = 250
+
 class Player(arcade.Sprite):
     """ Player Class """
 
@@ -222,12 +224,9 @@ class MyGame(arcade.Window):
 	    """
 
         """
-        In my code I reviewed, the scrolling was done in on_update
-        This is the code directly from the tutorial I found:
-        #This is the global variable used to determine when to screen scroll. It's in pixels.
-        VIEWPORT_MARGIN = 250
-        # Keep track of if we changed the boundary. We don't want to call the
-        # set_viewport command if we didn't change the view port.
+        Keep track of if we changed the boundary. We don't want to call the
+        set_viewport command if we didn't change the view port.
+        """
         changed = False
         # Scroll left
         left_boundary = self.view_left + VIEWPORT_MARGIN
@@ -249,6 +248,7 @@ class MyGame(arcade.Window):
         if self.player_sprite.bottom < bottom_boundary:
             self.view_bottom -= bottom_boundary - self.player_sprite.bottom
             changed = True
+        """
         I think we might have some difficulty with making this to fit to a certain sized platform area. 
         In the example I added a box around the maze area to limit where the player can go.
         """
