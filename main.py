@@ -35,7 +35,7 @@ class Player(arcade.Sprite):
         #self.center_x += self.change_x
         #self.center_y += self.change_y
 
-        # Check for out-of-bounds
+        # Check for out-of-bounds  -- doesn't currently work with scrolling
         if self.left < 0:
             self.left = 0
             print("hello")
@@ -75,9 +75,11 @@ class MyGame(arcade.Window):
         # Variables that will hold sprite lists
         self.player_list = None
         self.platform_list =None
+        self.enemy_list = None
         # Set up the player info
         self.player_sprite = None
         self.platform_sprite = None
+        self.enemy_sprite = None
 
         self.total_time = 90.0
 
@@ -105,6 +107,9 @@ class MyGame(arcade.Window):
         self.player_sprite.center_y = 150
         self.player_list.append(self.player_sprite)
 
+        self.enemy_sprite = arcade.Sprite("Sprites\\flipped_creeper.png", SPRITE_SCALING *.2)
+        self.enemy_sprite.center_x = 250
+        self.enemy_sprite.center_y = 210
             # --- Load in a map from the tiled editor ---
 
 	 
@@ -188,9 +193,10 @@ class MyGame(arcade.Window):
         # Draw all the sprites. Make sure you place background frist
         self.player_list.draw()
         self.platform_list.draw()
+        self.enemy_sprite.draw()
 
 	
-	#take this part ot. Draws text on screen
+	#take this part out. Draws text on screen
         arcade.draw_text(output, 625, 750, arcade.color.BLACK, 18)
         #arcade.draw_text(output2, 610, 725, arcade.color.BLACK, 18)
 
