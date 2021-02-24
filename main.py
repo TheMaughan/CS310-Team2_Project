@@ -4,7 +4,7 @@ import os
 import math
 import time 
 
-
+MUSIC_VOLUME = 0.5
 SPRITE_SCALING = 0.2
 TILE_SCALING = 0.9
 
@@ -91,7 +91,27 @@ class MyGame(arcade.Window):
         self.view_left = 0
 
         #Sound
+        self.music_list = []
+        self.current_song_index = 0
+        self.music = None
+        self.hit_sound = arcade.load_sound("Sprites/gameover4.wav")
 
+    def play_song(self):
+        """What's currently in here, I think we could use as menu music, if we choose to add one."""
+        # Stop what is currently playing.
+        if self.music:
+            self.music.stop()
+
+        # Play the selected song. We could have the different areas set the current_song_index 
+        # to a different value and then call this function to change the song
+        """From https://www.fesliyanstudios.com/royalty-free-music/downloads-c/8-bit-music/6
+        Another Website: https://freemusicarchive.org/genre/Chiptune"""
+        self.music = arcade.Sound(self.music_list[self.current_song_index], streaming=True) 
+        self.current_player = self.music.play(MUSIC_VOLUME)
+        # This is a quick delay. If we don't do this, our elapsed time is 0.0
+        # and on_update will think the music is over and advance us to the next
+        # song before starting this one.
+        time.sleep(0.03)
 
 
     def setup(self): #change this section 
@@ -100,6 +120,7 @@ class MyGame(arcade.Window):
         # Create the Sprite lists
         self.player_list = arcade.SpriteList()
         self.platform_list = arcade.SpriteList()
+        self.enemy_list = arcade.SpriteList()
 
         # Set up the player Change this
         self.player_sprite = Player("Sprites\player.png", SPRITE_SCALING)
@@ -110,6 +131,7 @@ class MyGame(arcade.Window):
         self.enemy_sprite = arcade.Sprite("Sprites\\flipped_creeper.png", SPRITE_SCALING *.2)
         self.enemy_sprite.center_x = 250
         self.enemy_sprite.center_y = 210
+        self.enemy_list.append(self.enemy_sprite)
             # --- Load in a map from the tiled editor ---
 
 	 
@@ -129,6 +151,9 @@ class MyGame(arcade.Window):
         platform.center_x = 400
         platform.center_y = 150
         self.platform_list.append(platform)
+
+        self.music_list = ["Sprites\Old_Game_David_Fesliyan.mp3", "Sprites\sawsquarenoise-Final_Boss.mp3"]
+        self.play_song() # Get the music going!
 
         # Create the 'physics engine'
         self.physics_engine = arcade.PhysicsEnginePlatformer(self.player_sprite,
@@ -216,7 +241,7 @@ class MyGame(arcade.Window):
         """ Movement and game logic """
 
         self.physics_engine.update()
-
+        self.enemy_list.update()
 
         #coin_hit_list = arcade.check_for_collision_with_list(self.player_sprite,self.coin_list
         self.total_time -= delta_time                                       
@@ -277,6 +302,14 @@ class MyGame(arcade.Window):
 
     def on_key_press(self, key, modifiers):
         """Called whenever a key is pressed. """
+
+        # Currenlty if you move really fast, it doesn't add to the enemy_hit_list and therefore doesn't play the sound.
+        enemy_hit_list = arcade.check_for_collision_with_list(self.player_sprite, self.enemy_list)
+        if len(enemy_hit_list) > 0:
+            arcade.play_sound(self.hit_sound)
+        
+        #for enemy in enemy_hit_list:
+            #enemy.remove_from_sprite_lists()
 
         # If the player presses a key, update the speed
         if key == arcade.key.UP:
