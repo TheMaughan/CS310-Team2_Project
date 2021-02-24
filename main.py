@@ -14,7 +14,7 @@ SCREEN_TITLE = "Platformer"
 
 
 MOVEMENT_SPEED = 3
-GRAVITY = .09 #change this to enable jumping
+GRAVITY = .0001 #change this to enable jumping
 ANGLE_SPEED = 3
 
 VIEWPORT_MARGIN = 250
@@ -38,6 +38,7 @@ class Player(arcade.Sprite):
         # Check for out-of-bounds
         if self.left < 0:
             self.left = 0
+            print("hello")
         elif self.right > SCREEN_WIDTH - 1:
             self.right = SCREEN_WIDTH - 1
 
@@ -47,12 +48,12 @@ class Player(arcade.Sprite):
         elif self.top > SCREEN_HEIGHT - 1:
             self.top = SCREEN_HEIGHT - 1
 
-        angle_rad = math.radians(self.angle)
+        #angle_rad = math.radians(self.angle)
 
-        self.angle += self.change_angle
+        #self.angle += self.change_angle
 
-        self.center_x += -self.speed * math.sin(angle_rad)
-        self.center_y += -self.speed * math.cos(angle_rad)		#change
+        #self.center_x += -self.speed * math.sin(angle_rad)
+        #self.center_y += -self.speed * math.cos(angle_rad)		#change
 
 
 class MyGame(arcade.Window):
@@ -83,6 +84,10 @@ class MyGame(arcade.Window):
         # Set the background color
         arcade.set_background_color(arcade.color.LIGHT_BLUE) #change
 
+        # Used to keep track of our scrolling
+        self.view_bottom = 0
+        self.view_left = 0
+
         #Sound
 
 
@@ -108,6 +113,7 @@ class MyGame(arcade.Window):
         platform.center_x = 120
         platform.center_y = 150
         self.platform_list.append(platform)
+        
 
         platform = arcade.Sprite("Sprites\platform.png", TILE_SCALING)
         platform.center_x = 250
@@ -197,10 +203,6 @@ class MyGame(arcade.Window):
 
 
 
-                
-            
-            
-
 
         
 
@@ -239,6 +241,7 @@ class MyGame(arcade.Window):
             self.view_left += self.player_sprite.right - right_boundary
             changed = True
         # Scroll up
+        """
         top_boundary = self.view_bottom + SCREEN_HEIGHT - VIEWPORT_MARGIN
         if self.player_sprite.top > top_boundary:
             self.view_bottom += self.player_sprite.top - top_boundary
@@ -249,9 +252,22 @@ class MyGame(arcade.Window):
             self.view_bottom -= bottom_boundary - self.player_sprite.bottom
             changed = True
         """
+        """
         I think we might have some difficulty with making this to fit to a certain sized platform area. 
         In the example I added a box around the maze area to limit where the player can go.
         """
+
+        if changed:
+            # Only scroll to integers. Otherwise we end up with pixels that
+            # don't line up on the screen
+            self.view_bottom = int(self.view_bottom)
+            self.view_left = int(self.view_left)
+
+            # Do the scrolling
+            arcade.set_viewport(self.view_left,
+                                SCREEN_WIDTH + self.view_left,
+                                self.view_bottom,
+                                SCREEN_HEIGHT + self.view_bottom)
 
     def on_key_press(self, key, modifiers):
         """Called whenever a key is pressed. """
@@ -274,9 +290,9 @@ class MyGame(arcade.Window):
         # This doesn't work well if multiple keys are pressed.
         # Use 'better move by keyboard' example if you need to
         # handle this.
-        if key == arcade.key.UP or key == arcade.key.DOWN:
-            self.player_sprite.change_y = 0
-        elif key == arcade.key.LEFT or key == arcade.key.RIGHT:
+        #if key == arcade.key.UP or key == arcade.key.DOWN:
+        #    self.player_sprite.change_y = 0
+        if key == arcade.key.LEFT or key == arcade.key.RIGHT:
             self.player_sprite.change_x = 0
 
 
