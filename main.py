@@ -4,8 +4,8 @@ import os
 import math
 import time 
 
-MUSIC_VOLUME = 0.5
-SPRITE_SCALING = 0.2
+MUSIC_VOLUME = 0.2
+SPRITE_SCALING = 0.5
 TILE_SCALING = 0.9
 
 SCREEN_WIDTH = 750
@@ -14,8 +14,8 @@ SCREEN_TITLE = "Platformer"
 
 
 MOVEMENT_SPEED = 3
-GRAVITY = .0001 #change this to enable jumping
-ANGLE_SPEED = 3
+GRAVITY = .2 #change this to enable jumping
+JUMP_SPEED = 11  
 
 VIEWPORT_MARGIN = 250
 
@@ -27,18 +27,29 @@ class Player(arcade.Sprite):
         super().__init__(image, scale)
         # Create a variable to hold our speed. 'angle' is created by the parent
         self.speed = 0
+        self.health = 5
+        self.has_lost = False
+
+    def reset_pos(self):
+        self.center_x = 100
+        self.center_y = 160
+
+
+    def reset(self): # reset the player
+        self.reset_pos()
+        self.has_lost = False
+        self.reset_health = self.health = 3 # health of the player
 
     def update(self):
         """ Move the player """
         # Move player.
         # Remove these lines if physics engine is moving player.
-        #self.center_x += self.change_x
-        #self.center_y += self.change_y
+        self.center_x += self.change_x
+        self.center_y += self.change_y
 
-        # Check for out-of-bounds  -- doesn't currently work with scrolling
+        # Check for out-of-bounds
         if self.left < 0:
             self.left = 0
-            print("hello")
         elif self.right > SCREEN_WIDTH - 1:
             self.right = SCREEN_WIDTH - 1
 
@@ -74,17 +85,25 @@ class MyGame(arcade.Window):
 
         # Variables that will hold sprite lists
         self.player_list = None
-        self.platform_list =None
+        self.brick_list =None
+        self.ground_list =None
+        self.stone_list = None
+        self.sun_list = None
+        self.cloud_list = None
+        self.house_list = None
         self.enemy_list = None
-        # Set up the player info
+        # Set up sprites
         self.player_sprite = None
-        self.platform_sprite = None
+        self.brick_sprite = None
+        self.ground_sprite = None
+        self.stone_sprite = None
+        self.sun_sprite = None
+        self.cloud_sprite = None
+        self.house_sprite = None
         self.enemy_sprite = None
-
+        
         self.total_time = 90.0
 
-        # Set the background color
-        arcade.set_background_color(arcade.color.LIGHT_BLUE) #change
 
         # Used to keep track of our scrolling
         self.view_bottom = 0
@@ -113,52 +132,59 @@ class MyGame(arcade.Window):
         # song before starting this one.
         time.sleep(0.03)
 
+    def reset(self):        #reset the game
+        # Set the background color
+            self.total_time = 90.0
+            self.view_left = 0
 
     def setup(self): #change this section 
         """ Set up the game and initialize the variables. """
-        
+        arcade.set_background_color(arcade.color.LIGHT_BLUE) #change
         # Create the Sprite lists
         self.player_list = arcade.SpriteList()
-        self.platform_list = arcade.SpriteList()
+        self.brick_list = arcade.SpriteList()
+        self.ground_list = arcade.SpriteList()
+        self.stone_list = arcade.SpriteList()
+        self.sun_list = arcade.SpriteList()
+        self.cloud_list = arcade.SpriteList()
+        self.house_list = arcade.SpriteList()
         self.enemy_list = arcade.SpriteList()
+        #self.player_sprite.reset_pos()
 
         # Set up the player Change this
         self.player_sprite = Player("Sprites\player.png", SPRITE_SCALING)
-        self.player_sprite.center_x = 100
+        self.player_sprite.center_x = 75
         self.player_sprite.center_y = 150
         self.player_list.append(self.player_sprite)
 
         self.enemy_sprite = arcade.Sprite("Sprites\\flipped_creeper.png", SPRITE_SCALING *.2)
         self.enemy_sprite.center_x = 250
-        self.enemy_sprite.center_y = 210
+        self.enemy_sprite.center_y = 125
         self.enemy_list.append(self.enemy_sprite)
-            # --- Load in a map from the tiled editor ---
-
-	 
-
-        platform = arcade.Sprite("Sprites\platform.png", TILE_SCALING)
-        platform.center_x = 120
-        platform.center_y = 150
-        self.platform_list.append(platform)
-        
-
-        platform = arcade.Sprite("Sprites\platform.png", TILE_SCALING)
-        platform.center_x = 250
-        platform.center_y = 150
-        self.platform_list.append(platform)
-
-        platform = arcade.Sprite("Sprites\platform.png", TILE_SCALING)
-        platform.center_x = 400
-        platform.center_y = 150
-        self.platform_list.append(platform)
 
         self.music_list = ["Sprites\Old_Game_David_Fesliyan.mp3", "Sprites\sawsquarenoise-Final_Boss.mp3"]
         self.play_song() # Get the music going!
 
-        # Create the 'physics engine'
-        self.physics_engine = arcade.PhysicsEnginePlatformer(self.player_sprite,
-                                                             self.platform_list,
-                                                            GRAVITY)
+            # --- Load in a map from the tiled editor ---
+        self.brick_sprite = arcade.Sprite('Sprites\\brick.png', TILE_SCALING)
+        self.brick_list.append(self.brick_sprite)
+
+        self.ground_sprite = arcade.Sprite('Sprites\\ground.png', TILE_SCALING)
+        self.ground_list.append(self.ground_sprite)
+
+        self.stone_sprite = arcade.Sprite('Sprites\\stone.png', TILE_SCALING)
+        self.stone_list.append(self.stone_sprite)
+
+        self.sun_sprite = arcade.Sprite('Sprites\\sun.png', TILE_SCALING)
+        self.sun_list.append(self.sun_sprite)
+
+        self.cloud_sprite = arcade.Sprite('Sprites\\cloud.png', TILE_SCALING)
+        self.cloud_list.append(self.cloud_sprite)
+
+        self.house_sprite = arcade.Sprite('Sprites\\house.png', TILE_SCALING)
+        self.house_list.append(self.house_sprite)
+
+
         
         
 
@@ -185,8 +211,27 @@ class MyGame(arcade.Window):
         if my_map.background_color:
             arcade.set_background_color(my_map.background_color)
         """
+        # Name of map file to load
+        map_name = "Sprites\map1.tmx"
+         # Name of the layer in the file that has our platforms/walls
+        main_layer = 'foreground'
+        background_layer = 'background'
+        #cloud_layer = 'cloud.png'
+        #house_layer = 'house.png'
+        #stone_layer = 'stone.png'
+        #sun_layer = 'sun.png'
+        my_map = arcade.tilemap.read_tmx(map_name)
+        self.ground_list = arcade.tilemap.process_layer(my_map,main_layer, TILE_SCALING )
+        self.brick_list = arcade.tilemap.process_layer(my_map,main_layer, TILE_SCALING )
+        self.stone_list =  arcade.tilemap.process_layer(my_map,background_layer, TILE_SCALING ) 
+        self.cloud_list =  arcade.tilemap.process_layer(my_map,background_layer, TILE_SCALING ) 
+        self.sun_list =  arcade.tilemap.process_layer(my_map,background_layer, TILE_SCALING ) 
+        self.house_list =  arcade.tilemap.process_layer(my_map,background_layer, TILE_SCALING ) 
 
-
+        # Create the 'physics engine'
+        self.physics_engine = arcade.PhysicsEnginePlatformer(self.player_sprite,
+                                                             self.ground_list,
+                                                            GRAVITY)
 
     def on_draw(self):
         """
@@ -199,7 +244,7 @@ class MyGame(arcade.Window):
 
         seconds = int(self.total_time) % 60
 
-        output = f"Time:  {minutes: 02d}:{seconds:02d}"
+        Time = f"Time:  {minutes: 02d}:{seconds:02d}"
 
         #output2 = f"Total coins: {self.total_coins} "
 
@@ -216,13 +261,18 @@ class MyGame(arcade.Window):
         arcade.start_render()
 
         # Draw all the sprites. Make sure you place background frist
+        self.ground_list.draw()
+        self.brick_list.draw()
+        self.stone_list.draw()
+        self.cloud_list.draw()
+        self.house_list.draw()
         self.player_list.draw()
-        self.platform_list.draw()
         self.enemy_sprite.draw()
+       
 
 	
-	#take this part out. Draws text on screen
-        arcade.draw_text(output, 625, 750, arcade.color.BLACK, 18)
+	#take this part ot. Draws text on screen
+        #arcade.draw_text(output, 625, 750, arcade.color.BLACK, 18) timer
         #arcade.draw_text(output2, 610, 725, arcade.color.BLACK, 18)
 
         #if self.total_time < 0 :
@@ -231,7 +281,13 @@ class MyGame(arcade.Window):
         #if self.total_coins == 19:
         #        arcade.draw_text(won_text, 75, 520, arcade.color.RED, 40)
         #        arcade.draw_text(won_text, 75, 520, arcade.color.GLITTER, 41)
+        arcade.draw_text(Time, 20 + self.view_left, 750, arcade.color.BLACK, 26)
+        arcade.draw_text("lives : "+str(self.player_sprite.health), 625 + self.view_left, 750, arcade.color.RED, 32)
 
+        if self.player_sprite.has_lost:
+            arcade.set_background_color(arcade.color.BLACK)
+            arcade.draw_text("You lost...", 0+self.view_left, SCREEN_HEIGHT//2, arcade.color.RED, 78)
+            arcade.draw_text("Press Enter to respawn", 0+self.view_left, SCREEN_HEIGHT//2-80, arcade.color.WHITE, 62)
 
 
 
@@ -241,10 +297,19 @@ class MyGame(arcade.Window):
         """ Movement and game logic """
 
         self.physics_engine.update()
-        self.enemy_list.update()
+
 
         #coin_hit_list = arcade.check_for_collision_with_list(self.player_sprite,self.coin_list
-        self.total_time -= delta_time                                       
+        self.total_time -= delta_time      
+
+        if self.player_sprite.top < 0 or self.total_time < 0:
+            if self.player_sprite.health > 1 and self.total_time > 0: # if the player fall of the screen
+                self.view_left = 0
+                self.player_sprite.reset_pos()
+                self.player_sprite.health -= 1
+            else: # if no more health or no more time
+                self.player_sprite.has_lost = True
+                self.player_sprite.health = 0                                 
         """
         if self.total_time < 0:
             arcade.set_background_color(arcade.color.BLACK) 
@@ -284,7 +349,7 @@ class MyGame(arcade.Window):
             changed = True
         """
         """
-        I think we might have some difficulty with making this to fit to a certain sized platform area. 
+        I think we might have some difficulty with making this to fit to a certain sized brick area. 
         In the example I added a box around the maze area to limit where the player can go.
         """
 
@@ -302,26 +367,26 @@ class MyGame(arcade.Window):
 
     def on_key_press(self, key, modifiers):
         """Called whenever a key is pressed. """
-
+        
         # Currenlty if you move really fast, it doesn't add to the enemy_hit_list and therefore doesn't play the sound.
         enemy_hit_list = arcade.check_for_collision_with_list(self.player_sprite, self.enemy_list)
         if len(enemy_hit_list) > 0:
             arcade.play_sound(self.hit_sound)
-        
-        #for enemy in enemy_hit_list:
-            #enemy.remove_from_sprite_lists()
+        for enemy in enemy_hit_list:
+            enemy.remove_from_sprite_lists()
+
+
+
+
 
         # If the player presses a key, update the speed
         if key == arcade.key.UP:
-            self.player_sprite.change_y  = MOVEMENT_SPEED
-        elif key == arcade.key.DOWN:
-            self.player_sprite.change_y = -MOVEMENT_SPEED
-
+            if self.physics_engine.can_jump():
+                self.player_sprite.change_y = JUMP_SPEED
         elif key == arcade.key.LEFT:
             self.player_sprite.change_x = -MOVEMENT_SPEED
         elif key == arcade.key.RIGHT:
             self.player_sprite.change_x = MOVEMENT_SPEED
-
     def on_key_release(self, key, modifiers):
         """Called when the user releases a key. """
 
@@ -329,8 +394,6 @@ class MyGame(arcade.Window):
         # This doesn't work well if multiple keys are pressed.
         # Use 'better move by keyboard' example if you need to
         # handle this.
-        #if key == arcade.key.UP or key == arcade.key.DOWN:
-        #    self.player_sprite.change_y = 0
         if key == arcade.key.LEFT or key == arcade.key.RIGHT:
             self.player_sprite.change_x = 0
 
