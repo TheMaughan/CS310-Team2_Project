@@ -4,7 +4,7 @@ import os
 import math
 import time 
 
-MUSIC_VOLUME = 0.2
+MUSIC_VOLUME = 0.0
 SPRITE_SCALING = 0.5
 TILE_SCALING = 0.9
 
@@ -21,7 +21,6 @@ VIEWPORT_MARGIN = 250
 
 TEXTURE_LEFT = 0
 TEXTURE_RIGHT = 1
-
 
 class Player(arcade.Sprite):
     """ Player Class """
@@ -48,15 +47,14 @@ class Player(arcade.Sprite):
         """ Move the player """
         # Move player.
         # Remove these lines if physics engine is moving player.
-        self.center_x += self.change_x
-        self.center_y += self.change_y
+        #self.center_x += self.change_x
+        #self.center_y += self.change_y
 
         # Check for out-of-bounds
         if self.left < 0:
             self.left = 0
         elif self.right > SCREEN_WIDTH - 1:
             self.right = SCREEN_WIDTH - 1
-
         if self.bottom < 0:
             self.bottom = 0
 
@@ -69,6 +67,7 @@ class Player(arcade.Sprite):
 
         #self.center_x += -self.speed * math.sin(angle_rad)
         #self.center_y += -self.speed * math.cos(angle_rad)		#change
+
 
 class Enemy(arcade.Sprite):
     """ Enemy Class """
@@ -95,37 +94,25 @@ class Enemy(arcade.Sprite):
         self.center_x = 250
         self.center_y = 125
 
+    
 
     def reset(self): # reset the player
         self.reset_pos()
 
     def update(self):
-        self.center_x += self.change_x
-        self.center_y += self.change_y
 
         # Check for out-of-bounds
-        if self.left < 10:
-            self.left = 10
-        elif self.right > 400:
-            self.right = 400
 
-        if self.bottom < 0:
-            self.bottom = 0
-
-        elif self.top > 160:
-            self.top = 160
-        
         # Changes the spirite to face left or right respectively. For some reason not currently working.
         if self.change_x < 0:
             self.texture = self.textures[TEXTURE_LEFT]
         elif self.change_x > 0:
             self.texture = self.textures[TEXTURE_RIGHT]
-    
+
     def follow_sprite(self, player_sprite):
         """
         This function will move the current sprite towards whatever
         other sprite is specified as a parameter.
-
         We use the 'min' function here to get the sprite to line up with
         the target sprite, and not jump around if the sprite is not off
         an exact multiple of MOVEMENT_SPEED.
@@ -140,7 +127,6 @@ class Enemy(arcade.Sprite):
             self.center_x += min(MOVEMENT_SPEED, player_sprite.center_x - self.center_x)
         elif self.center_x > player_sprite.center_x:
             self.center_x -= min(MOVEMENT_SPEED, self.center_x - player_sprite.center_x)
-
 
 class MyGame(arcade.Window):
     """
@@ -263,29 +249,6 @@ class MyGame(arcade.Window):
         
         
 
-        """
-        # Name of map file to load
-        map_name = "background.tmx"
-        # Name of the layer in the file that has our platforms/walls
-        tree_name = 'Tree_plat'
-        # Name of the layer that has items for pick-up
-        coins_layer_name = 'Coins_plat'
-        road_layer_name = 'Road_plat'
-        house_layer_name = 'House_plat'
-        # Read in the tiled map
-        my_map = arcade.tilemap.read_tmx(map_name)
-        # -- Platforms
-        self.tree_list = arcade.tilemap.process_layer(my_map,
-                                                      layer_name=tree_name,
-                                                      scaling=TILE_SCALING,
-                                                      use_spatial_hash=True)
-        # --- Other stuff
-        self.road_list = arcade.tilemap.process_layer(my_map,road_layer_name, TILE_SCALING )
-        self.house_list = arcade.tilemap.process_layer(my_map,house_layer_name, TILE_SCALING )
-        # Set the background color
-        if my_map.background_color:
-            arcade.set_background_color(my_map.background_color)
-        """
         # Name of map file to load
         map_name = "Sprites\map1.tmx"
          # Name of the layer in the file that has our platforms/walls
@@ -307,6 +270,10 @@ class MyGame(arcade.Window):
         self.physics_engine = arcade.PhysicsEnginePlatformer(self.player_sprite,
                                                              self.ground_list,
                                                             GRAVITY)
+        self.physics_engine_enemy = arcade.PhysicsEnginePlatformer(self.enemy_sprite,
+                                                             self.ground_list,
+                                                            GRAVITY)
+
 
     def on_draw(self):
         """
@@ -341,8 +308,8 @@ class MyGame(arcade.Window):
         self.stone_list.draw()
         self.cloud_list.draw()
         self.house_list.draw()
-        self.player_list.draw()
         self.enemy_sprite.draw()
+        self.player_list.draw()
        
 
 	
@@ -372,6 +339,7 @@ class MyGame(arcade.Window):
         """ Movement and game logic """
 
         self.physics_engine.update()
+        self.physics_engine_enemy.update()
 
 
         #coin_hit_list = arcade.check_for_collision_with_list(self.player_sprite,self.coin_list
@@ -427,11 +395,12 @@ class MyGame(arcade.Window):
         I think we might have some difficulty with making this to fit to a certain sized brick area. 
         In the example I added a box around the maze area to limit where the player can go.
         """
+
         self.enemy_list.update()
         for enemy in self.enemy_list:
             enemy.follow_sprite(self.player_sprite)
         if self.enemy_sprite.top < 0:
-            self.player_sprite.reset_pos()
+            self.enemy_sprite.reset_pos()
 
         if changed:
             # Only scroll to integers. Otherwise we end up with pixels that
@@ -452,8 +421,11 @@ class MyGame(arcade.Window):
         enemy_hit_list = arcade.check_for_collision_with_list(self.player_sprite, self.enemy_list)
         if len(enemy_hit_list) > 0:
             arcade.play_sound(self.hit_sound)
-        #for enemy in enemy_hit_list:
-            #enemy.remove_from_sprite_lists()
+
+
+        #add here
+        for enemy in enemy_hit_list:
+            enemy.remove_from_sprite_lists()
 
 
 
