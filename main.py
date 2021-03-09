@@ -19,6 +19,10 @@ JUMP_SPEED = 11
 
 VIEWPORT_MARGIN = 250
 
+TEXTURE_LEFT = 0
+TEXTURE_RIGHT = 1
+
+
 class Player(arcade.Sprite):
     """ Player Class """
 
@@ -65,6 +69,77 @@ class Player(arcade.Sprite):
 
         #self.center_x += -self.speed * math.sin(angle_rad)
         #self.center_y += -self.speed * math.cos(angle_rad)		#change
+
+class Enemy(arcade.Sprite):
+    """ Enemy Class """
+
+    def __init__(self, image, scale):
+
+        super().__init__(image, scale)
+        # Create a variable to hold our speed. 'angle' is created by the parent
+        self.speed = 0
+        self.scale = SPRITE_SCALING *.2
+        self.textures = []
+
+        # Load a left facing texture and a right facing texture.
+        # flipped_horizontally=True will mirror the image we load.
+        texture = arcade.load_texture(image)
+        self.textures.append(texture)
+        texture = arcade.load_texture(image, flipped_horizontally=True)
+        self.textures.append(texture)
+
+        # By default, face right.
+        self.texture = texture
+
+    def reset_pos(self):
+        self.center_x = 250
+        self.center_y = 125
+
+
+    def reset(self): # reset the player
+        self.reset_pos()
+
+    def update(self):
+        self.center_x += self.change_x
+        self.center_y += self.change_y
+
+        # Check for out-of-bounds
+        if self.left < 10:
+            self.left = 10
+        elif self.right > 400:
+            self.right = 400
+
+        if self.bottom < 0:
+            self.bottom = 0
+
+        elif self.top > 160:
+            self.top = 160
+        
+        # Changes the spirite to face left or right respectively. For some reason not currently working.
+        if self.change_x < 0:
+            self.texture = self.textures[TEXTURE_LEFT]
+        elif self.change_x > 0:
+            self.texture = self.textures[TEXTURE_RIGHT]
+    
+    def follow_sprite(self, player_sprite):
+        """
+        This function will move the current sprite towards whatever
+        other sprite is specified as a parameter.
+
+        We use the 'min' function here to get the sprite to line up with
+        the target sprite, and not jump around if the sprite is not off
+        an exact multiple of MOVEMENT_SPEED.
+        """
+
+        if self.center_y < player_sprite.center_y:
+            self.center_y += min(MOVEMENT_SPEED, player_sprite.center_y - self.center_y)
+        elif self.center_y > player_sprite.center_y:
+            self.center_y -= min(MOVEMENT_SPEED, self.center_y - player_sprite.center_y)
+
+        if self.center_x < player_sprite.center_x:
+            self.center_x += min(MOVEMENT_SPEED, player_sprite.center_x - self.center_x)
+        elif self.center_x > player_sprite.center_x:
+            self.center_x -= min(MOVEMENT_SPEED, self.center_x - player_sprite.center_x)
 
 
 class MyGame(arcade.Window):
@@ -157,7 +232,7 @@ class MyGame(arcade.Window):
         self.player_sprite.center_y = 150
         self.player_list.append(self.player_sprite)
 
-        self.enemy_sprite = arcade.Sprite("Sprites\\flipped_creeper.png", SPRITE_SCALING *.2)
+        self.enemy_sprite = Enemy("Sprites\\flipped_creeper.png", SPRITE_SCALING *.2)
         self.enemy_sprite.center_x = 250
         self.enemy_sprite.center_y = 125
         self.enemy_list.append(self.enemy_sprite)
@@ -352,6 +427,11 @@ class MyGame(arcade.Window):
         I think we might have some difficulty with making this to fit to a certain sized brick area. 
         In the example I added a box around the maze area to limit where the player can go.
         """
+        self.enemy_list.update()
+        for enemy in self.enemy_list:
+            enemy.follow_sprite(self.player_sprite)
+        if self.enemy_sprite.top < 0:
+            self.player_sprite.reset_pos()
 
         if changed:
             # Only scroll to integers. Otherwise we end up with pixels that
@@ -372,8 +452,8 @@ class MyGame(arcade.Window):
         enemy_hit_list = arcade.check_for_collision_with_list(self.player_sprite, self.enemy_list)
         if len(enemy_hit_list) > 0:
             arcade.play_sound(self.hit_sound)
-        for enemy in enemy_hit_list:
-            enemy.remove_from_sprite_lists()
+        #for enemy in enemy_hit_list:
+            #enemy.remove_from_sprite_lists()
 
 
 
