@@ -1,8 +1,7 @@
 import arcade #py -m venv venv
-import random
-import os
-import math
-import time 
+import random, os, math, time
+from Player_Obj import Player
+from Enemy_Obj import Enemy
 
 MUSIC_VOLUME = 0.0
 SPRITE_SCALING = 0.5
@@ -22,124 +21,22 @@ VIEWPORT_MARGIN = 250
 TEXTURE_LEFT = 0
 TEXTURE_RIGHT = 1
 
-class Player(arcade.Sprite):
-    """ Player Class """
-
-    def __init__(self, image, scale):
-
-        super().__init__(image, scale)
-        # Create a variable to hold our speed. 'angle' is created by the parent
-        self.speed = 0
-        self.health = 5
-        self.has_lost = False
-
-    def reset_pos(self):
-        self.center_x = 100
-        self.center_y = 160
 
 
-    def reset(self): # reset the player
-        self.reset_pos()
-        self.has_lost = False
-        self.reset_health = self.health = 3 # health of the player
-
-    def update(self):
-        """ Move the player """
-        # Move player.
-        # Remove these lines if physics engine is moving player.
-        #self.center_x += self.change_x
-        #self.center_y += self.change_y
-
-        # Check for out-of-bounds
-        if self.left < 0:
-            self.left = 0
-        elif self.right > SCREEN_WIDTH - 1:
-            self.right = SCREEN_WIDTH - 1
-        if self.bottom < 0:
-            self.bottom = 0
-
-        elif self.top > SCREEN_HEIGHT - 1:
-            self.top = SCREEN_HEIGHT - 1
-
-        #angle_rad = math.radians(self.angle)
-
-        #self.angle += self.change_angle
-
-        #self.center_x += -self.speed * math.sin(angle_rad)
-        #self.center_y += -self.speed * math.cos(angle_rad)		#change
 
 
-class Enemy(arcade.Sprite):
-    """ Enemy Class """
-
-    def __init__(self, image, scale):
-
-        super().__init__(image, scale)
-        # Create a variable to hold our speed. 'angle' is created by the parent
-        self.speed = 0
-        self.scale = SPRITE_SCALING *.2
-        self.textures = []
-
-        # Load a left facing texture and a right facing texture.
-        # flipped_horizontally=True will mirror the image we load.
-        texture = arcade.load_texture(image)
-        self.textures.append(texture)
-        texture = arcade.load_texture(image, flipped_horizontally=True)
-        self.textures.append(texture)
-
-        # By default, face right.
-        self.texture = texture
-
-    def reset_pos(self):
-        self.center_x = 250
-        self.center_y = 125
-
-    
-
-    def reset(self): # reset the player
-        self.reset_pos()
-
-    def update(self):
-
-        # Check for out-of-bounds
-
-        # Changes the spirite to face left or right respectively. For some reason not currently working.
-        if self.change_x < 0:
-            self.texture = self.textures[TEXTURE_LEFT]
-        elif self.change_x > 0:
-            self.texture = self.textures[TEXTURE_RIGHT]
-
-    def follow_sprite(self, player_sprite):
-        """
-        This function will move the current sprite towards whatever
-        other sprite is specified as a parameter.
-        We use the 'min' function here to get the sprite to line up with
-        the target sprite, and not jump around if the sprite is not off
-        an exact multiple of MOVEMENT_SPEED.
-        """
-
-        if self.center_y < player_sprite.center_y:
-            self.center_y += min(MOVEMENT_SPEED, player_sprite.center_y - self.center_y)
-        elif self.center_y > player_sprite.center_y:
-            self.center_y -= min(MOVEMENT_SPEED, self.center_y - player_sprite.center_y)
-
-        if self.center_x < player_sprite.center_x:
-            self.center_x += min(MOVEMENT_SPEED, player_sprite.center_x - self.center_x)
-        elif self.center_x > player_sprite.center_x:
-            self.center_x -= min(MOVEMENT_SPEED, self.center_x - player_sprite.center_x)
-
-class MyGame(arcade.Window):
+class MyGame(arcade.View):
     """
     Main application class.
     """
 
-    def __init__(self, width, height, title):
+    def __init__(self):
         """
         Initializer
         """
 
         # Call the parent class initializer
-        super().__init__(width, height, title)
+        super().__init__()
 
         
         self.physics_engine = None
@@ -449,9 +346,9 @@ class MyGame(arcade.Window):
         if key == arcade.key.LEFT or key == arcade.key.RIGHT:
             self.player_sprite.change_x = 0
 
-
+"""
 def main():
-    """ Main method """
+    "" Main method ""
     window = MyGame(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE)
     window.setup()
     arcade.run()
@@ -459,3 +356,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+"""
