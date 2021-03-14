@@ -40,6 +40,7 @@ class MyGame(arcade.View):
 
         # Variables that will hold sprite lists
         self.player_list = None
+        self.player = None
         self.brick_list =None
         self.ground_list =None
         self.stone_list = None
@@ -110,12 +111,25 @@ class MyGame(arcade.View):
         self.player_sprite = Player("Sprites\player.png", SPRITE_SCALING)
         self.player_sprite.center_x = 75
         self.player_sprite.center_y = 150
-        self.player_list.append(self.player_sprite)
+        self.player_list = arcade.SpriteList()
+        self.player = arcade.AnimatedWalkingSprite()
+
+        self.player.stand_right_textures = []
+        self.player.stand_right_textures.append(arcade.load_texture("sprites"))
+
+        self.player.stand_left_textures = []
 
         self.enemy_sprite = Enemy("Sprites\\flipped_creeper.png", SPRITE_SCALING *.2)
         self.enemy_sprite.center_x = 250
         self.enemy_sprite.center_y = 125
-        self.enemy_list.append(self.enemy_sprite)
+        #self.enemy_list.append(self.enemy_sprite)
+
+        self.enemy_list = arcade.SpriteList()
+        self.enemy = arcade.AnimatedTimeSprite()
+        self.enemy.textures = []
+
+        for i in range(2):
+            self.enemy.textures.append(arcade.load_texture(""))
 
         self.music_list = ["Sprites\Old_Game_David_Fesliyan.mp3", "Sprites\sawsquarenoise-Final_Boss.mp3"]
         self.play_song() # Get the music going!
