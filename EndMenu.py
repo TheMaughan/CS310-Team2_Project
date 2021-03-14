@@ -22,21 +22,25 @@ class GameOverView(arcade.View):
         # Reset the viewport, necessary if we have a scrolling game and we need
         # to reset the viewport back to the start so we can see what we draw.
         arcade.set_viewport(0, SCREEN_WIDTH - 1, 0, SCREEN_HEIGHT - 1)
-        arcade.set_background_color(arcade.csscolor.DARK_SLATE_BLUE)
+        arcade.set_background_color(arcade.color.BLACK)
 
     def on_draw(self):
         """ Draw this view """
         arcade.start_render()
         #self.texture.draw_sized(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2,
                                 #SCREEN_WIDTH, SCREEN_HEIGHT)
-        arcade.draw_text("Game Over!", SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2,
-                         arcade.color.WHITE, font_size=50, anchor_x="center")
-        arcade.draw_text("Click to Restart", SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2-75,
-                         arcade.color.WHITE, font_size=20, anchor_x="center")
+        
+        #arcade.draw_text("You lost...", SCREEN_HEIGHT//2, arcade.color.RED)
+        #arcade.draw_text("Press Enter to respawn", SCREEN_HEIGHT//2-80, arcade.color.WHITE)
+
+        arcade.draw_text("You lost...", SCREEN_WIDTH / 2, SCREEN_HEIGHT//2,
+                         arcade.color.RED, font_size=78, anchor_x="center")
+        arcade.draw_text("Click to advance", SCREEN_WIDTH / 2, SCREEN_HEIGHT//2-80,
+                         arcade.color.WHITE, font_size=62, anchor_x="center")
 
     def on_mouse_press(self, _x, _y, _button, _modifiers):
         """ If the user presses the mouse button, re-start the game. """
-        from Game import GameView
-        game_view = GameView()
+        from Game import MyGame
+        game_view = MyGame()
         game_view.setup()
         self.window.show_view(game_view)

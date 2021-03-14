@@ -22,9 +22,6 @@ TEXTURE_LEFT = 0
 TEXTURE_RIGHT = 1
 
 
-
-
-
 class MyGame(arcade.View):
     """
     Main application class.
@@ -92,9 +89,9 @@ class MyGame(arcade.View):
 
     def reset(self):        #reset the game
         # Set the background color
-            self.total_time = 90.0
-            self.view_left = 0
-
+        self.total_time = 90.0
+        self.view_left = 0
+        
     def setup(self): #change this section 
         """ Set up the game and initialize the variables. """
         arcade.set_background_color(arcade.color.LIGHT_BLUE) #change
@@ -224,12 +221,9 @@ class MyGame(arcade.View):
         arcade.draw_text("lives : "+str(self.player_sprite.health), 625 + self.view_left, 750, arcade.color.RED, 32)
 
         if self.player_sprite.has_lost:
-            arcade.set_background_color(arcade.color.BLACK)
-            arcade.draw_text("You lost...", 0+self.view_left, SCREEN_HEIGHT//2, arcade.color.RED, 78)
-            arcade.draw_text("Press Enter to respawn", 0+self.view_left, SCREEN_HEIGHT//2-80, arcade.color.WHITE, 62)
-
-
-
+            from EndMenu import GameOverView
+            end_view = GameOverView()
+            self.window.show_view(end_view)
         
 
     def on_update(self, delta_time):
