@@ -48,6 +48,7 @@ class MyGame(arcade.View):
         self.cloud_list = None
         self.house_list = None
         self.enemy_list = None
+	self.clear_list = None
         # Set up sprites
         self.player_sprite = None
         self.brick_sprite = None
@@ -57,6 +58,7 @@ class MyGame(arcade.View):
         self.cloud_sprite = None
         self.house_sprite = None
         self.enemy_sprite = None
+	self.clear_sprite = None
         
         self.total_time = 90.0
 
@@ -105,6 +107,7 @@ class MyGame(arcade.View):
         self.cloud_list = arcade.SpriteList()
         self.house_list = arcade.SpriteList()
         self.enemy_list = arcade.SpriteList()
+	self.clear_list = arcade.SpriteList()
         #self.player_sprite.reset_pos()
 
         # Set up the player Change this
@@ -150,6 +153,9 @@ class MyGame(arcade.View):
 
         self.house_sprite = arcade.Sprite('Sprites\\house.png', TILE_SCALING)
         self.house_list.append(self.house_sprite)
+	
+	self.clear_sprite = arcade.Sprite('Sprites\\clear.png', TILE_SCALING)
+        self.clear_list.append(self.clear_sprite)
 
 
         
@@ -167,6 +173,7 @@ class MyGame(arcade.View):
         my_map = arcade.tilemap.read_tmx(map_name)
         self.ground_list = arcade.tilemap.process_layer(my_map,main_layer, TILE_SCALING )
         self.brick_list = arcade.tilemap.process_layer(my_map,main_layer, TILE_SCALING )
+	self.clear_list =  arcade.tilemap.process_layer(my_map,main_layer, TILE_SCALING )
         self.stone_list =  arcade.tilemap.process_layer(my_map,background_layer, TILE_SCALING ) 
         self.cloud_list =  arcade.tilemap.process_layer(my_map,background_layer, TILE_SCALING ) 
         self.sun_list =  arcade.tilemap.process_layer(my_map,background_layer, TILE_SCALING ) 
@@ -215,6 +222,7 @@ class MyGame(arcade.View):
         self.cloud_list.draw()
         self.house_list.draw()
         self.enemy_sprite.draw()
+	self.clear_list.draw()
         self.player_list.draw()
        
 
