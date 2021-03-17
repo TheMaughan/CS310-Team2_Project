@@ -1,3 +1,4 @@
+from typing import Optional
 import arcade #py -m venv venv
 import random, os, math, time
 from Player_Obj import Player
@@ -14,7 +15,24 @@ SCREEN_TITLE = "Platformer"
 
 MOVEMENT_SPEED = 3
 GRAVITY = .2 #change this to enable jumping
-JUMP_SPEED = 11  
+JUMP_SPEED = 11
+
+#Friction:
+PLAYER_FRICTION = 1.0
+WALL_FRICTION = 0.7
+DYNAMIC_ITEM_FRICTION = 0.6
+
+# Mass (defaults to 1)
+PLAYER_MASS = 2.0
+
+# Limit Speed (setter & getter)
+PLAYER_MAX_HORIZONAL_SPEED = 450
+PLAYER_MAX_VERTICAL_SPEED = 1600
+
+#Speed lost per second:
+DEFAULT_DAMPING = 0.4
+PLAYER_DAMPING = 1.0
+
 
 VIEWPORT_MARGIN = 250
 
@@ -36,10 +54,10 @@ class MyGame(arcade.View):
         super().__init__()
 
         
-        self.physics_engine = None
+        self.physics_engine: Optional[arcade.PymunkPhysicsEngine] = None
 
         # Variables that will hold sprite lists
-        self.player_list = None
+        self.player_list: Optional[arcade.SpriteList] = None
         self.player = None
         self.brick_list =None
         self.ground_list =None
@@ -48,9 +66,10 @@ class MyGame(arcade.View):
         self.cloud_list = None
         self.house_list = None
         self.enemy_list = None
-	self.clear_list = None
+        self.clear_list = None
         # Set up sprites
-        self.player_sprite = None
+        self.player_sprite: Optional[Player] = None
+
         self.brick_sprite = None
         self.ground_sprite = None
         self.stone_sprite = None
@@ -58,7 +77,7 @@ class MyGame(arcade.View):
         self.cloud_sprite = None
         self.house_sprite = None
         self.enemy_sprite = None
-	self.clear_sprite = None
+        self.clear_sprite = None
         
         self.total_time = 90.0
 
@@ -107,20 +126,17 @@ class MyGame(arcade.View):
         self.cloud_list = arcade.SpriteList()
         self.house_list = arcade.SpriteList()
         self.enemy_list = arcade.SpriteList()
-	self.clear_list = arcade.SpriteList()
+        self.clear_list = arcade.SpriteList()
         #self.player_sprite.reset_pos()
 
         # Set up the player Change this
-        self.player_sprite = Player("Sprites\player.png", SPRITE_SCALING)
+        #self.player_sprite = Player("Sprites\player.png", SPRITE_SCALING)
+        self.player_sprite = Player()
+        self.player_list = arcade.SpriteList()
+        self.player_list.append(self.player_sprite)
         self.player_sprite.center_x = 75
         self.player_sprite.center_y = 150
-        self.player_list = arcade.SpriteList()
         #self.player = arcade.AnimatedWalkingSprite()
-
-        #self.player.stand_right_textures = []
-        #self.player.stand_right_textures.append(arcade.load_texture("sprites"))
-
-        #self.player.stand_left_textures = []
 
         self.enemy_sprite = Enemy("Sprites\\flipped_creeper.png", SPRITE_SCALING *.2)
         self.enemy_sprite.center_x = 250
@@ -153,8 +169,8 @@ class MyGame(arcade.View):
 
         self.house_sprite = arcade.Sprite('Sprites\\house.png', TILE_SCALING)
         self.house_list.append(self.house_sprite)
-	
-	self.clear_sprite = arcade.Sprite('Sprites\\clear.png', TILE_SCALING)
+        
+        self.clear_sprite = arcade.Sprite('Sprites\\clear.png', TILE_SCALING)
         self.clear_list.append(self.clear_sprite)
 
 
@@ -173,7 +189,7 @@ class MyGame(arcade.View):
         my_map = arcade.tilemap.read_tmx(map_name)
         self.ground_list = arcade.tilemap.process_layer(my_map,main_layer, TILE_SCALING )
         self.brick_list = arcade.tilemap.process_layer(my_map,main_layer, TILE_SCALING )
-	self.clear_list =  arcade.tilemap.process_layer(my_map,main_layer, TILE_SCALING )
+        self.clear_list =  arcade.tilemap.process_layer(my_map,main_layer, TILE_SCALING )
         self.stone_list =  arcade.tilemap.process_layer(my_map,background_layer, TILE_SCALING ) 
         self.cloud_list =  arcade.tilemap.process_layer(my_map,background_layer, TILE_SCALING ) 
         self.sun_list =  arcade.tilemap.process_layer(my_map,background_layer, TILE_SCALING ) 
@@ -222,8 +238,11 @@ class MyGame(arcade.View):
         self.cloud_list.draw()
         self.house_list.draw()
         self.enemy_sprite.draw()
-	self.clear_list.draw()
+        self.clear_list.draw()
+        
+        
         self.player_list.draw()
+        self.player_sprite.draw()
        
 
 	
@@ -240,6 +259,8 @@ class MyGame(arcade.View):
         arcade.draw_text(Time, 20 + self.view_left, 750, arcade.color.BLACK, 26)
         arcade.draw_text("lives : "+str(self.player_sprite.health), 625 + self.view_left, 750, arcade.color.RED, 32)
 
+
+        #####---- This call the 'Game Over' Viewport ----#####
         if self.player_sprite.has_lost:
             from EndMenu import GameOverView
             end_view = GameOverView()
@@ -252,12 +273,16 @@ class MyGame(arcade.View):
         self.physics_engine.update()
         self.physics_engine_enemy.update()
 
+        #self.player_sprite.update()
+        self.player_list.update()
+        self.player_list.update_animation()
+
 
         #coin_hit_list = arcade.check_for_collision_with_list(self.player_sprite,self.coin_list
-        self.total_time -= delta_time      
+        self.total_time -= delta_time
 
         if self.player_sprite.top < 0 or self.total_time < 0:
-            if self.player_sprite.health > 1 and self.total_time > 0: # if the player fall of the screen
+            if self.player_sprite.health > 1 and self.total_time > 0: # if the player falls off the screen
                 self.view_left = 0
                 self.player_sprite.reset_pos()
                 self.player_sprite.health -= 1
