@@ -250,7 +250,7 @@ class GameWindow(arcade.Window):
         self.bullet_list = arcade.SpriteList()
 
         # Read in the tiled map
-        map_name = "Sprites\map1.tmx"
+        map_name = "Sprites/blue_template.tmx"
         my_map = arcade.tilemap.read_tmx(map_name)
 
         # Read in the map layers
