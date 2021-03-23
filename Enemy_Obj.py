@@ -1,20 +1,6 @@
 import arcade
 
-
-MUSIC_VOLUME = 0.0
-SPRITE_SCALING = 0.5
-TILE_SCALING = 0.9
-
-SCREEN_WIDTH = 750
-SCREEN_HEIGHT = 800
-SCREEN_TITLE = "Platformer"
-
-
 MOVEMENT_SPEED = 3
-GRAVITY = .2 #change this to enable jumping
-JUMP_SPEED = 11  
-
-VIEWPORT_MARGIN = 250
 
 TEXTURE_LEFT = 0
 TEXTURE_RIGHT = 1
@@ -29,7 +15,7 @@ class Enemy(arcade.Sprite):
         super().__init__(image, scale)
         # Create a variable to hold our speed. 'angle' is created by the parent
         self.speed = 0
-        self.scale = SPRITE_SCALING *.2
+        self.scale = scale
         self.textures = []
 
         # Load a left facing texture and a right facing texture.
@@ -48,7 +34,7 @@ class Enemy(arcade.Sprite):
 
     
 
-    def reset(self): # reset the player
+    def reset(self): # reset the enemy
         self.reset_pos()
 
     def update(self):

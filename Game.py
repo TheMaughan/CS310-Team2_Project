@@ -69,6 +69,7 @@ class MyGame(arcade.View):
         self.clear_list = None
         # Set up sprites
         self.player_sprite: Optional[Player] = None
+        self.enemy_hit_list = None
 
         self.brick_sprite = None
         self.ground_sprite = None
@@ -138,14 +139,16 @@ class MyGame(arcade.View):
         self.player_sprite.center_y = 150
         #self.player = arcade.AnimatedWalkingSprite()
 
+        #self.enemy_hit_list = arcade.SpriteList()
+        self.enemy_hit_list = arcade.check_for_collision_with_list(self.player_sprite, self.enemy_list)
         self.enemy_sprite = Enemy("Sprites\\flipped_creeper.png", SPRITE_SCALING *.2)
         self.enemy_sprite.center_x = 250
         self.enemy_sprite.center_y = 125
-        #self.enemy_list.append(self.enemy_sprite)
+        self.enemy_list.append(self.enemy_sprite)
 
-        self.enemy_list = arcade.SpriteList()
-        self.enemy = arcade.AnimatedTimeSprite()
-        self.enemy.textures = []
+        #self.enemy_list = arcade.SpriteList()
+        #self.enemy = arcade.AnimatedTimeSprite()
+        #self.enemy.textures = []
 
 
         self.music_list = ["Sprites\Old_Game_David_Fesliyan.mp3", "Sprites\sawsquarenoise-Final_Boss.mp3"]
@@ -244,7 +247,9 @@ class MyGame(arcade.View):
         self.player_list.draw()
         self.player_sprite.draw()
        
-
+        for enemy in self.enemy_hit_list:
+            #arcade.draw_point(self.player_sprite.center_x, self.player_sprite.center_y +100, arcade.color.BLACK, 18)
+            arcade.draw_text("current math question",self.player_sprite.center_x , self.player_sprite.center_y + 100, arcade.color.BLACK, 18)
 	
 	#take this part ot. Draws text on screen
         #arcade.draw_text(output, 625, 750, arcade.color.BLACK, 18) timer
@@ -331,10 +336,10 @@ class MyGame(arcade.View):
         I think we might have some difficulty with making this to fit to a certain sized brick area. 
         In the example I added a box around the maze area to limit where the player can go.
         """
-
+        #arcade.draw_text("current math question",self.player_sprite.center_x , self.player_sprite.center_y + 100, arcade.color.BLACK, 18)
+        
         self.enemy_list.update()
-        for enemy in self.enemy_list:
-            enemy.follow_sprite(self.player_sprite)
+        self.enemy_sprite.follow_sprite(self.player_sprite)
         if self.enemy_sprite.top < 0:
             self.enemy_sprite.reset_pos()
 
@@ -354,16 +359,13 @@ class MyGame(arcade.View):
         """Called whenever a key is pressed. """
         
         # Currenlty if you move really fast, it doesn't add to the enemy_hit_list and therefore doesn't play the sound.
-        enemy_hit_list = arcade.check_for_collision_with_list(self.player_sprite, self.enemy_list)
-        if len(enemy_hit_list) > 0:
+        self.enemy_hit_list = arcade.check_for_collision_with_list(self.player_sprite, self.enemy_list)
+        if len(self.enemy_hit_list) > 0:
             arcade.play_sound(self.hit_sound)
 
-
         #add here
-        for enemy in enemy_hit_list:
+        for enemy in self.enemy_hit_list:
             enemy.remove_from_sprite_lists()
-
-
 
 
 
@@ -375,6 +377,7 @@ class MyGame(arcade.View):
             self.player_sprite.change_x = -MOVEMENT_SPEED
         elif key == arcade.key.RIGHT:
             self.player_sprite.change_x = MOVEMENT_SPEED
+
     def on_key_release(self, key, modifiers):
         """Called when the user releases a key. """
 
