@@ -5,8 +5,15 @@ from Player_Obj import Player
 from Enemy_Obj import Enemy
 
 MUSIC_VOLUME = 0.0
+
+# Constants used to scale our sprites from their original size
+CHARACTER_SCALING = 1
 SPRITE_SCALING = 0.5
-TILE_SCALING = 0.9
+TILE_SCALING = 0.5
+COIN_SCALING = 0.5
+SPRITE_PIXEL_SIZE = 128
+GRID_PIXEL_SIZE = (SPRITE_PIXEL_SIZE * TILE_SCALING)
+#TILE_SCALING = 0.9
 
 SCREEN_WIDTH = 750
 SCREEN_HEIGHT = 800
@@ -14,8 +21,8 @@ SCREEN_TITLE = "Platformer"
 
 
 MOVEMENT_SPEED = 3
-GRAVITY = .2 #change this to enable jumping
-JUMP_SPEED = 11
+GRAVITY = 1 #0.2 change this to enable jumping
+JUMP_SPEED = 20 #11
 
 #Friction:
 PLAYER_FRICTION = 1.0
@@ -33,11 +40,20 @@ PLAYER_MAX_VERTICAL_SPEED = 1600
 DEFAULT_DAMPING = 0.4
 PLAYER_DAMPING = 1.0
 
+"""
+LEFT_VIEWPORT_MARGIN = 200
+RIGHT_VIEWPORT_MARGIN = 200
+BOTTOM_VIEWPORT_MARGIN = 150
+TOP_VIEWPORT_MARGIN = 100
+"""
 
 VIEWPORT_MARGIN = 250
 
 TEXTURE_LEFT = 0
 TEXTURE_RIGHT = 1
+
+PLAYER_START_X = 64
+PLAYER_START_Y = 225
 
 
 class MyGame(arcade.View):
@@ -59,26 +75,20 @@ class MyGame(arcade.View):
         # Variables that will hold sprite lists
         self.player_list: Optional[arcade.SpriteList] = None
         self.player = None
-        self.brick_list =None
-        self.ground_list =None
-        self.stone_list = None
-        self.sun_list = None
-        self.cloud_list = None
-        self.house_list = None
-        self.enemy_list = None
-        self.clear_list = None
+        
+        # Made in the Tiled Mapmaker:
+        self.wall_list = None
+        self.coin_list = None
+        self.foreground_list = None
+        self.background_list = None
+        self.dont_touch_list = None
+
         # Set up sprites
         self.player_sprite: Optional[Player] = None
-
-        self.brick_sprite = None
-        self.ground_sprite = None
-        self.stone_sprite = None
-        self.sun_sprite = None
-        self.cloud_sprite = None
-        self.house_sprite = None
-        self.enemy_sprite = None
-        self.clear_sprite = None
+        self.enemy_list = None
         
+        # Player Prograssion:
+        self.score = 0
         self.total_time = 90.0
 
 
@@ -86,11 +96,20 @@ class MyGame(arcade.View):
         self.view_bottom = 0
         self.view_left = 0
 
+        # Map Stuff:
+        self.end_of_map = 0
+        self.level = 1
+
         #Sound
         self.music_list = []
         self.current_song_index = 0
         self.music = None
         self.hit_sound = arcade.load_sound("Sprites/gameover4.wav")
+
+        # Load sounds:
+        self.collect_coin_sound = arcade.load_sound("sounds/coin1.wav")
+        self.jump_sound = arcade.load_sound("sounds/jump1.wav")
+        self.game_over = arcade.load_sound("sounds/gameover1.wav")
 
     def play_song(self):
         """What's currently in here, I think we could use as menu music, if we choose to add one."""
@@ -117,17 +136,13 @@ class MyGame(arcade.View):
     def setup(self): #change this section 
         """ Set up the game and initialize the variables. """
         arcade.set_background_color(arcade.color.LIGHT_BLUE) #change
-        # Create the Sprite lists
-        self.player_list = arcade.SpriteList()
-        self.brick_list = arcade.SpriteList()
-        self.ground_list = arcade.SpriteList()
-        self.stone_list = arcade.SpriteList()
-        self.sun_list = arcade.SpriteList()
-        self.cloud_list = arcade.SpriteList()
-        self.house_list = arcade.SpriteList()
+        # Create the map layer lists
         self.enemy_list = arcade.SpriteList()
-        self.clear_list = arcade.SpriteList()
-        #self.player_sprite.reset_pos()
+        
+        self.foreground_list = arcade.SpriteList()
+        self.background_list = arcade.SpriteList()
+        self.wall_list = arcade.SpriteList()
+        self.coin_list = arcade.SpriteList()
 
         # Set up the player Change this
         #self.player_sprite = Player("Sprites\player.png", SPRITE_SCALING)
@@ -151,27 +166,61 @@ class MyGame(arcade.View):
         self.music_list = ["Sprites\Old_Game_David_Fesliyan.mp3", "Sprites\sawsquarenoise-Final_Boss.mp3"]
         self.play_song() # Get the music going!
 
-            # --- Load in a map from the tiled editor ---
-        self.brick_sprite = arcade.Sprite('Sprites\\brick.png', TILE_SCALING)
-        self.brick_list.append(self.brick_sprite)
-
-        self.ground_sprite = arcade.Sprite('Sprites\\ground.png', TILE_SCALING)
-        self.ground_list.append(self.ground_sprite)
-
-        self.stone_sprite = arcade.Sprite('Sprites\\stone.png', TILE_SCALING)
-        self.stone_list.append(self.stone_sprite)
-
-        self.sun_sprite = arcade.Sprite('Sprites\\sun.png', TILE_SCALING)
-        self.sun_list.append(self.sun_sprite)
-
-        self.cloud_sprite = arcade.Sprite('Sprites\\cloud.png', TILE_SCALING)
-        self.cloud_list.append(self.cloud_sprite)
-
-        self.house_sprite = arcade.Sprite('Sprites\\house.png', TILE_SCALING)
-        self.house_list.append(self.house_sprite)
+        #---------------------------- Map Code ----------------------------#
+        # Name of the layer in the file that has our platforms/walls
+        platforms_layer_name = 'Platforms'
+        # Name of the layer that has items for pick-up
+        coins_layer_name = 'Coins'
+        # Name of the layer that has items for foreground
+        foreground_layer_name = 'Foreground'
+        # Name of the layer that has items for background
+        background_layer_name = 'Background'
+        # Name of the layer that has items we shouldn't touch
+        dont_touch_layer_name = "Don't Touch"
+        # --- Load File --- #
+        # Name of map file to load
+        map_name = f"level_{level}.tmx"
+        # Read in the tiled map
+        my_map = arcade.tilemap.read_tmx(map_name)
         
-        self.clear_sprite = arcade.Sprite('Sprites\\clear.png', TILE_SCALING)
-        self.clear_list.append(self.clear_sprite)
+
+        #- Read the Map:
+        self.end_of_map = my_map.map_size.width * GRID_PIXEL_SIZE
+
+        # -- Map Layers -- #
+                                                      
+        # Background Layer:
+        self.background_list = arcade.tilemap.process_layer(my_map,
+                                                            background_layer_name,
+                                                            TILE_SCALING)
+
+        # Foreground Layer:
+        self.foreground_list = arcade.tilemap.process_layer(my_map,
+                                                            foreground_layer_name,
+                                                            TILE_SCALING)
+        # Platforms & Boundry objects (player cannot move through)
+        self.wall_list = arcade.tilemap.process_layer(map_object=my_map,
+                                                      layer_name=platforms_layer_name,
+                                                      scaling=TILE_SCALING,
+                                                      use_spatial_hash=True)
+        
+        # -- Map Coins -- #
+        # Name of the layer that has items for pick-up
+        self.coin_list = arcade.tilemap.process_layer(my_map,
+                                                      coins_layer_name,
+                                                      TILE_SCALING,
+                                                      use_spatial_hash=True)
+
+        # Insta-death Layer Name (lava, fall off map, spikes, etc.):
+        self.dont_touch_list = arcade.tilemap.process_layer(my_map,
+                                                            dont_touch_layer_name,
+                                                            TILE_SCALING,
+                                                            use_spatial_hash=True)
+        # --- Other Map Details -- #
+        # Set the background color
+        if my_map.background_color:
+            arcade.set_background_color(my_map.background_color)
+        # ^^^^^^^^^^^^^^^^^^^ End of Map Code ^^^^^^^^^^^^^^^^^^^ #
 
 
         
@@ -195,10 +244,10 @@ class MyGame(arcade.View):
         self.sun_list =  arcade.tilemap.process_layer(my_map,background_layer, TILE_SCALING ) 
         self.house_list =  arcade.tilemap.process_layer(my_map,background_layer, TILE_SCALING ) 
 
-        # Create the 'physics engine'
-        self.physics_engine = arcade.PhysicsEnginePlatformer(self.player_sprite,
-                                                             self.ground_list,
-                                                            GRAVITY)
+        # --------- Physics Engine & Logic --------- #
+        self.physics_engine = arcade.PhysicsEnginePlatformer(self.player,
+                                                             self.wall_list,
+                                                             GRAVITY)
         self.physics_engine_enemy = arcade.PhysicsEnginePlatformer(self.enemy_sprite,
                                                              self.ground_list,
                                                             GRAVITY)
@@ -231,19 +280,19 @@ class MyGame(arcade.View):
         # This command has to happen before we start drawing
         arcade.start_render()
 
-        # Draw all the sprites. Make sure you place background frist
-        self.ground_list.draw()
-        self.brick_list.draw()
-        self.stone_list.draw()
-        self.cloud_list.draw()
-        self.house_list.draw()
+        # - Map Objects (IMPORTANT! The Order Objects are
+        #       drawn matter, Objects drawn first will appear behind other objects!):
+        self.background_list.draw()
+        self.dont_touch_list.draw()
+        self.wall_list.draw()
+        self.coin_list.draw()
         self.enemy_sprite.draw()
-        self.clear_list.draw()
-        
-        
         self.player_list.draw()
         self.player_sprite.draw()
-       
+        self.foreground_list.draw()
+        
+        score_text = f"Score: {self.score}"
+        arcade.draw_text(score_text, 10 + self.view_left, 10 + self.view_bottom, arcade.csscolor.WHITE, 18)
 
 	
 	#take this part ot. Draws text on screen
@@ -258,7 +307,6 @@ class MyGame(arcade.View):
         #        arcade.draw_text(won_text, 75, 520, arcade.color.GLITTER, 41)
         arcade.draw_text(Time, 20 + self.view_left, 750, arcade.color.BLACK, 26)
         arcade.draw_text("lives : "+str(self.player_sprite.health), 625 + self.view_left, 750, arcade.color.RED, 32)
-
 
         #####---- This call the 'Game Over' Viewport ----#####
         if self.player_sprite.has_lost:
@@ -349,6 +397,41 @@ class MyGame(arcade.View):
                                 SCREEN_WIDTH + self.view_left,
                                 self.view_bottom,
                                 SCREEN_HEIGHT + self.view_bottom)
+
+        # ----- Coin Logic: ----- #
+        coin_hit_list = arcade.check_for_collision_with_list(self.player, self.coin_list)
+
+        for coin in coin_hit_list: #- Remove a coin, add a point, make a sound:
+            coin.remove_from_sprite_lists()
+            arcade.play_sound(self.collect_coin_sound)
+            self.score += 1
+
+        # ------> Player Death Event <------ #
+        changed_viewport = False # - Setting the View to the Game, for now...
+        # - Did the Player Die?
+        if (self.player.center_y < -100) or (arcade.check_for_collision_with_list(self.player,
+                                                                                self.dont_touch_list)): #- Restart Position:
+            # Reset Player
+            self.player.center_x = 0
+            self.player.center_y = 0
+            self.player.center_x = PLAYER_START_X
+            self.player.center_y = PLAYER_START_Y
+
+            # Reset View
+            self.view_left = 0
+            self.view_bottom = 0
+            changed_viewport = True
+            arcade.play_sound(self.game_over)
+        
+
+        # ------> Player Win Event <------ #
+        if self.player.center_x >= self.end_of_map:
+            self.level += 1 # Advance a level
+            self.setup(self.level) # Restart Game at new Level
+            # Reset the Viewport
+            self.view_left = 0
+            self.view_bottom = 0
+            changed_viewport = True
 
     def on_key_press(self, key, modifiers):
         """Called whenever a key is pressed. """
