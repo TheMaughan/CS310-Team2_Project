@@ -11,6 +11,10 @@ SCREEN_TITLE = "Implement Views Example"
 
 
 class InstructionView(arcade.View):
+    def __init__(self):
+        super().__init__()
+        self.level = 1
+
     def on_show(self):
         arcade.set_background_color(arcade.csscolor.DARK_SLATE_BLUE)
 
@@ -28,7 +32,7 @@ class InstructionView(arcade.View):
         """ If the user presses the mouse button, start the game. """
         from Game import MyGame
         game_view = MyGame()
-        game_view.setup()
+        game_view.setup(self.level)
         self.window.show_view(game_view)
 
 
