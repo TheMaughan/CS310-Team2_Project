@@ -28,3 +28,9 @@ class Problems():
 
     def get_answer(self):
         return self.answer
+
+    def get_first(self):
+        return self.first_val
+
+    def get_second(self):
+        return self.second_val
