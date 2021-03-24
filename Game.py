@@ -81,7 +81,7 @@ class MyGame(arcade.View):
         self.enemy_sprite = None
         self.clear_sprite = None
         
-        self.total_time = 90.0
+        self.total_time = 10.0
 
         self.interacion = []
 
@@ -92,14 +92,21 @@ class MyGame(arcade.View):
         #Sound
         self.music_list = []
         self.current_song_index = 0
+        self.current_player = None
         self.music = None
         self.hit_sound = arcade.load_sound("Sprites/gameover4.wav")
+
+    def advance_song(self):
+        """ Advance our pointer to the next song. This does NOT start the song. """
+        self.current_song_index += 1
+        if self.current_song_index >= len(self.music_list):
+            self.current_song_index = 0
 
     def play_song(self):
         """What's currently in here, I think we could use as menu music, if we choose to add one."""
         # Stop what is currently playing.
         if self.music:
-            self.music.stop()
+            self.music.stop(self.current_player)
 
         # Play the selected song. We could have the different areas set the current_song_index 
         # to a different value and then call this function to change the song
@@ -317,6 +324,16 @@ class MyGame(arcade.View):
         else:
             
 	    """
+
+        if self.music.is_complete(self.current_player):
+            self.play_song()
+        if self.total_time <= 0:
+            if self.music:
+                # What the stop() function from arcade should be doing idk why but using stop() doesn't work.
+                self.current_player.pause()
+                self.current_player.delete()
+            self.advance_song()
+            self.play_song()
 
         """
         Keep track of if we changed the boundary. We don't want to call the
