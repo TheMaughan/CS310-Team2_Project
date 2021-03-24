@@ -3,8 +3,9 @@ import arcade #py -m venv venv
 import random, os, math, time
 from Player_Obj import Player
 from Enemy_Obj import Enemy
+from Problem_Obj import Problems
 
-MUSIC_VOLUME = 0.0
+MUSIC_VOLUME = 0.1
 SPRITE_SCALING = 0.5
 TILE_SCALING = 0.9
 
@@ -33,11 +34,11 @@ PLAYER_MAX_VERTICAL_SPEED = 1600
 DEFAULT_DAMPING = 0.4
 PLAYER_DAMPING = 1.0
 
-
 VIEWPORT_MARGIN = 250
 
 TEXTURE_LEFT = 0
 TEXTURE_RIGHT = 1
+
 
 
 class MyGame(arcade.View):
@@ -82,6 +83,7 @@ class MyGame(arcade.View):
         
         self.total_time = 90.0
 
+        self.interacion = []
 
         # Used to keep track of our scrolling
         self.view_bottom = 0
@@ -248,9 +250,20 @@ class MyGame(arcade.View):
         self.player_sprite.draw()
        
         for enemy in self.enemy_hit_list:
+            if len(self.enemy_hit_list) > 0:
+                enemy.remove_from_sprite_lists()
+            question = self.interacion[len(self.enemy_hit_list)-1].get_question()
+            answer = self.interacion[len(self.enemy_hit_list)-1].get_answer()
             #arcade.draw_point(self.player_sprite.center_x, self.player_sprite.center_y +100, arcade.color.BLACK, 18)
-            arcade.draw_text("current math question",self.player_sprite.center_x , self.player_sprite.center_y + 100, arcade.color.BLACK, 18)
-	
+            arcade.draw_text(question, self.player_sprite.center_x , self.player_sprite.center_y + 100, arcade.color.BLACK, 18)
+            arcade.draw_text(str(answer), self.player_sprite.center_x , self.player_sprite.center_y + 200, arcade.color.BLACK, 18)
+            #To be implimented once we fix the loop.
+            """if int(guess) != answer:
+                self.player_sprite.health -= 1
+            else:
+                break"""
+
+
 	#take this part ot. Draws text on screen
         #arcade.draw_text(output, 625, 750, arcade.color.BLACK, 18) timer
         #arcade.draw_text(output2, 610, 725, arcade.color.BLACK, 18)
@@ -265,7 +278,7 @@ class MyGame(arcade.View):
         arcade.draw_text("lives : "+str(self.player_sprite.health), 625 + self.view_left, 750, arcade.color.RED, 32)
 
 
-        #####---- This call the 'Game Over' Viewport ----#####
+        #####---- This calls the 'Game Over' Viewport ----#####
         if self.player_sprite.has_lost:
             from EndMenu import GameOverView
             end_view = GameOverView()
@@ -365,6 +378,8 @@ class MyGame(arcade.View):
 
         #add here
         for enemy in self.enemy_hit_list:
+            temp = Problems()
+            self.interacion.append(temp)
             enemy.remove_from_sprite_lists()
 
 
