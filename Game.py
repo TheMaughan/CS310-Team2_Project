@@ -184,7 +184,7 @@ class MyGame(arcade.View):
         my_map = arcade.tilemap.read_tmx(map_name)
         
 
-        #- Read the Map:
+        #- Read the Map & find the end of the map:
         self.end_of_map = my_map.map_size.width * GRID_PIXEL_SIZE
 
         # -- Map Layers -- #
