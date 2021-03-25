@@ -81,7 +81,7 @@ class MyGame(arcade.View):
         self.enemy_sprite = None
         self.clear_sprite = None
         
-        self.total_time = 10.0
+        self.total_time = 90.0
 
         self.interacion = []
 
@@ -312,6 +312,10 @@ class MyGame(arcade.View):
                 self.player_sprite.reset_pos()
                 self.player_sprite.health -= 1
             else: # if no more health or no more time
+                if self.music:
+                    # What the stop() function from arcade should be doing idk why but using stop() doesn't work.
+                    self.current_player.pause()
+                    self.current_player.delete()
                 self.player_sprite.has_lost = True
                 self.player_sprite.health = 0                                 
         """
