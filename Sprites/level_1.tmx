@@ -4,6 +4,21 @@
   <image source="NES_MarioTiles.png" trans="5c94fc" width="220" height="186"/>
  </tileset>
  <tileset firstgid="144" source="NES_MarioTiles.tsx"/>
+ <tileset firstgid="287" name="hungry_flower" tilewidth="16" tileheight="24" tilecount="4" columns="0">
+  <grid orientation="orthogonal" width="1" height="1"/>
+  <tile id="0">
+   <image width="16" height="23" source="enemies/hungry_flower/0.png"/>
+  </tile>
+  <tile id="1">
+   <image width="16" height="24" source="enemies/hungry_flower/1.png"/>
+  </tile>
+  <tile id="2">
+   <image width="16" height="23" source="enemies/hungry_flower/2.png"/>
+  </tile>
+  <tile id="3">
+   <image width="16" height="24" source="enemies/hungry_flower/3.png"/>
+  </tile>
+ </tileset>
  <layer id="2" name="Background" width="20" height="20">
   <data encoding="base64" compression="zlib">
    eJxjYBgFMUAcC8RxVDIvE4izgDibSuYNFMAXLuSEGb5wGS5hNhyAGZXNMiXTTCYsYiCznKE0Kfr5gFgIiAXQ1FxmYGgIgNB4AUg/P1Q/iC2IhNHNHEkAAIR4C6w=
@@ -16,17 +31,17 @@
  </layer>
  <layer id="5" name="Don't Touch" width="20" height="20">
   <data encoding="base64" compression="zlib">
-   eJxjYBgFo2AUjIJRMApIBwAGQAAB
+   eJxjYBgFo2BggDzjQLtgFIyCUUAJAAB+vwAh
   </data>
  </layer>
  <layer id="1" name="Platforms" width="20" height="20">
   <data encoding="base64" compression="zlib">
-   eJxjYBgFwwGYDLQD6ATo6U85KpqlBcTaJKhng2J2JDY6sCDBvGNEqCFk3hMgfgrEz4g0bxURamAAZN4yNIwOtmMRkwZiGRLsAYElUIzNvxpArEm6eQ4gDDKPkQQ8AQsmRf9gwAAJjBF0
+   eJxjYBgFwwGYDLQD6ATw+VOaynZpDKB5bFDMjsSmxLxjRKghZN4TIH4KxM+oZB4yAJm3DA2jg+1YxEBxLkOCPSCwBIqxAZCbNUk3zwGEQWxGEvAELJgU/YMBAwBInhBa
   </data>
  </layer>
  <layer id="3" name="Foreground" width="20" height="20">
   <data encoding="base64" compression="zlib">
-   eJxjYBgFIx3EAHEsEMdRybxMIM4C4mwqmTcK6AO+kaieCw2jg1VEmPGJBPu2E6HmPxFqTgDxSSA+xYDbD5OAeDLUvCkEzLsKxNeA+DoRdg83AAAX7g6D
+   eJxjYBgFIx3EAHEsEMdRybxMIM4C4mwqmTcKBifgQsPkgE/Ucw4Y/CdCzQkgPgnEpxhw+2ESEE+GmjeFgHlXgfgaEF8n1bHDAAAAl3cMLA==
   </data>
  </layer>
 </map>
