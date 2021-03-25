@@ -3,6 +3,9 @@ import arcade #py -m venv venv
 import random, os, math, time
 from Player_Obj import Player
 from Enemy_Obj import Enemy
+from Problem_Obj import Problems
+
+MUSIC_VOLUME = 0.1
 
 MUSIC_VOLUME = 0.0
 
@@ -85,11 +88,13 @@ class MyGame(arcade.View):
 
         # Set up sprites
         self.player_sprite: Optional[Player] = None
-        self.enemy_list = None
+        self.enemy_hit_list = None
+        self.enemy_sprite = None
         
         # Player Prograssion:
         self.score = 0
         self.total_time = 90.0
+        self.interacion = []
 
 
         # Used to keep track of our scrolling
@@ -103,6 +108,7 @@ class MyGame(arcade.View):
         #Sound
         self.music_list = []
         self.current_song_index = 0
+        self.current_player = None
         self.music = None
         self.hit_sound = arcade.load_sound("Sprites/gameover4.wav")
 
@@ -111,11 +117,17 @@ class MyGame(arcade.View):
         self.jump_sound = arcade.load_sound("sounds/jump1.wav")
         self.game_over = arcade.load_sound("sounds/gameover1.wav")
 
+        def advance_song(self):
+            """ Advance our pointer to the next song. This does NOT start the song. """
+            self.current_song_index += 1
+            if self.current_song_index >= len(self.music_list):
+                self.current_song_index = 0
+
     def play_song(self):
         """What's currently in here, I think we could use as menu music, if we choose to add one."""
         # Stop what is currently playing.
         if self.music:
-            self.music.stop()
+            self.music.stop(self.current_player)
 
         # Play the selected song. We could have the different areas set the current_song_index 
         # to a different value and then call this function to change the song
@@ -149,14 +161,15 @@ class MyGame(arcade.View):
         self.player_sprite = Player()
         self.player_list = arcade.SpriteList()
         self.player_list.append(self.player_sprite)
-        self.player_sprite.center_x = 75
-        self.player_sprite.center_y = 150
+        self.player_sprite.center_x = PLAYER_START_X
+        self.player_sprite.center_y = PLAYER_START_Y
         #self.player = arcade.AnimatedWalkingSprite()
 
+        self.enemy_hit_list = arcade.check_for_collision_with_list(self.player_sprite, self.enemy_list)
         self.enemy_sprite = Enemy("Sprites\\flipped_creeper.png", SPRITE_SCALING *.2)
         self.enemy_sprite.center_x = 250
         self.enemy_sprite.center_y = 125
-        #self.enemy_list.append(self.enemy_sprite)
+        self.enemy_list.append(self.enemy_sprite)
 
         self.enemy_list = arcade.SpriteList()
         self.enemy = arcade.AnimatedTimeSprite()
@@ -283,17 +296,33 @@ class MyGame(arcade.View):
 
         # - Map Objects (IMPORTANT! The Order Objects are
         #       drawn matter, Objects drawn first will appear behind!):
-        self.background_list.draw()
-        self.dont_touch_list.draw()
-        self.wall_list.draw()
-        self.coin_list.draw()
-        self.enemy_sprite.draw()
-        self.player_list.draw()
-        self.player_sprite.draw()
-        self.foreground_list.draw()
+        self.background_list.draw() # This draws first, and is behind all
+        self.dont_touch_list.draw() # You touch, you die (lava, acid, and other enviromental hazards)
+        self.wall_list.draw() # Player & Enemies cannot move through objects drawn in this layer (platforms, the ground, walls, etc.)
+        self.coin_list.draw() # Money! Points! Touch this layer and add value to a counter!
+        self.enemy_sprite.draw() # The Enemy layer
+        self.player_list.draw() # The Player Layer
+        self.player_sprite.draw() # ^
+        self.foreground_list.draw() # This draws last, and goes in front of all
         
+        # --- Draw a Coin collection Counter, UI Element --- #
         score_text = f"Score: {self.score}"
         arcade.draw_text(score_text, 10 + self.view_left, 10 + self.view_bottom, arcade.csscolor.WHITE, 18)
+
+        # ---- Enemy Interaction? ---- #
+        for enemy in self.enemy_hit_list:
+            if len(self.enemy_hit_list) > 0:
+                enemy.remove_from_sprite_lists()
+            question = self.interacion[len(self.enemy_hit_list)-1].get_question()
+            answer = self.interacion[len(self.enemy_hit_list)-1].get_answer()
+            #arcade.draw_point(self.player_sprite.center_x, self.player_sprite.center_y +100, arcade.color.BLACK, 18)
+            arcade.draw_text(question, self.player_sprite.center_x , self.player_sprite.center_y + 100, arcade.color.BLACK, 18)
+            arcade.draw_text(str(answer), self.player_sprite.center_x , self.player_sprite.center_y + 200, arcade.color.BLACK, 18)
+            #To be implimented once we fix the loop.
+            """if int(guess) != answer:
+                self.player_sprite.health -= 1
+            else:
+                break"""
 
 	
 	#take this part ot. Draws text on screen
@@ -336,6 +365,10 @@ class MyGame(arcade.View):
                 self.player_sprite.reset_pos()
                 self.player_sprite.health -= 1
             else: # if no more health or no more time
+                if self.music:
+                    # What the stop() function from arcade should be doing idk why but using stop() doesn't work.
+                    self.current_player.pause()
+                    self.current_player.delete()
                 self.player_sprite.has_lost = True
                 self.player_sprite.health = 0                                 
         """
@@ -348,6 +381,16 @@ class MyGame(arcade.View):
         else:
             
 	    """
+
+        if self.music.is_complete(self.current_player):
+            self.play_song()
+        if self.total_time <= 0:
+            if self.music:
+                # What the stop() function from arcade should be doing idk why but using stop() doesn't work.
+                self.current_player.pause()
+                self.current_player.delete()
+            self.advance_song()
+            self.play_song()
 
         """
         Keep track of if we changed the boundary. We don't want to call the
@@ -382,6 +425,7 @@ class MyGame(arcade.View):
         """
 
         self.enemy_list.update()
+        self.enemy_sprite.follow_sprite(self.player_sprite)
         for enemy in self.enemy_list:
             enemy.follow_sprite(self.player_sprite)
         if self.enemy_sprite.top < 0:
@@ -438,13 +482,15 @@ class MyGame(arcade.View):
         """Called whenever a key is pressed. """
         
         # Currenlty if you move really fast, it doesn't add to the enemy_hit_list and therefore doesn't play the sound.
-        enemy_hit_list = arcade.check_for_collision_with_list(self.player_sprite, self.enemy_list)
-        if len(enemy_hit_list) > 0:
+        self.enemy_hit_list = arcade.check_for_collision_with_list(self.player_sprite, self.enemy_list)
+        if len(self.enemy_hit_list) > 0:
             arcade.play_sound(self.hit_sound)
 
 
         #add here
-        for enemy in enemy_hit_list:
+        for enemy in self.enemy_hit_list:
+            temp = Problems()
+            self.interacion.append(temp)
             enemy.remove_from_sprite_lists()
 
 
@@ -459,6 +505,7 @@ class MyGame(arcade.View):
             self.player_sprite.change_x = -MOVEMENT_SPEED
         elif key == arcade.key.RIGHT:
             self.player_sprite.change_x = MOVEMENT_SPEED
+
     def on_key_release(self, key, modifiers):
         """Called when the user releases a key. """
 
