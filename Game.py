@@ -59,6 +59,7 @@ PLAYER_START_X = 64
 PLAYER_START_Y = 225
 
 
+
 class MyGame(arcade.View):
     """
     Main application class.
@@ -96,6 +97,7 @@ class MyGame(arcade.View):
         self.total_time = 90.0
         self.interacion = []
 
+        self.interacion = []
 
         # Used to keep track of our scrolling
         self.view_bottom = 0
@@ -165,15 +167,17 @@ class MyGame(arcade.View):
         self.player_sprite.center_y = PLAYER_START_Y
         #self.player = arcade.AnimatedWalkingSprite()
 
+        #self.enemy_hit_list = arcade.SpriteList()
+
         self.enemy_hit_list = arcade.check_for_collision_with_list(self.player_sprite, self.enemy_list)
         self.enemy_sprite = Enemy("Sprites\\flipped_creeper.png", SPRITE_SCALING *.2)
         self.enemy_sprite.center_x = 250
         self.enemy_sprite.center_y = 125
         self.enemy_list.append(self.enemy_sprite)
 
-        self.enemy_list = arcade.SpriteList()
-        self.enemy = arcade.AnimatedTimeSprite()
-        self.enemy.textures = []
+        #self.enemy_list = arcade.SpriteList()
+        #self.enemy = arcade.AnimatedTimeSprite()
+        #self.enemy.textures = []
 
 
         self.music_list = ["Sprites\Old_Game_David_Fesliyan.mp3", "Sprites\sawsquarenoise-Final_Boss.mp3"]
@@ -211,6 +215,7 @@ class MyGame(arcade.View):
         self.foreground_list = arcade.tilemap.process_layer(my_map,
                                                             foreground_layer_name,
                                                             TILE_SCALING)
+				
         # Platforms & Boundry objects (player cannot move through)
         self.wall_list = arcade.tilemap.process_layer(map_object=my_map,
                                                       layer_name=platforms_layer_name,
@@ -324,7 +329,6 @@ class MyGame(arcade.View):
             else:
                 break"""
 
-	
 	#take this part ot. Draws text on screen
         #arcade.draw_text(output, 625, 750, arcade.color.BLACK, 18) timer
         #arcade.draw_text(output2, 610, 725, arcade.color.BLACK, 18)
@@ -338,7 +342,7 @@ class MyGame(arcade.View):
         arcade.draw_text(Time, 20 + self.view_left, 750, arcade.color.BLACK, 26)
         arcade.draw_text("lives : "+str(self.player_sprite.health), 625 + self.view_left, 750, arcade.color.RED, 32)
 
-        #####---- This call the 'Game Over' Viewport ----#####
+        #####---- This calls the 'Game Over' Viewport ----#####
         if self.player_sprite.has_lost:
             from EndMenu import GameOverView
             end_view = GameOverView()
@@ -423,11 +427,14 @@ class MyGame(arcade.View):
         I think we might have some difficulty with making this to fit to a certain sized brick area. 
         In the example I added a box around the maze area to limit where the player can go.
         """
-
+        #arcade.draw_text("current math question",self.player_sprite.center_x , self.player_sprite.center_y + 100, arcade.color.BLACK, 18)
+        
         self.enemy_list.update()
         self.enemy_sprite.follow_sprite(self.player_sprite)
+
         for enemy in self.enemy_list:
             enemy.follow_sprite(self.player_sprite)
+			
         if self.enemy_sprite.top < 0:
             self.enemy_sprite.reset_pos()
 
@@ -486,14 +493,11 @@ class MyGame(arcade.View):
         if len(self.enemy_hit_list) > 0:
             arcade.play_sound(self.hit_sound)
 
-
         #add here
         for enemy in self.enemy_hit_list:
             temp = Problems()
             self.interacion.append(temp)
             enemy.remove_from_sprite_lists()
-
-
 
 
 
