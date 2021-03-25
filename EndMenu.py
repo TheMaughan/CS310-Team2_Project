@@ -18,6 +18,7 @@ class GameOverView(arcade.View):
         """ This is run once when we switch to this view """
         super().__init__()
         #self.texture = arcade.load_texture("ship.png")
+        self.level = 1
 
         # Reset the viewport, necessary if we have a scrolling game and we need
         # to reset the viewport back to the start so we can see what we draw.
@@ -42,5 +43,5 @@ class GameOverView(arcade.View):
         """ If the user presses the mouse button, re-start the game. """
         from Game import MyGame
         game_view = MyGame()
-        game_view.setup()
+        game_view.setup(self.level)
         self.window.show_view(game_view)
