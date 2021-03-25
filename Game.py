@@ -58,8 +58,6 @@ TEXTURE_RIGHT = 1
 PLAYER_START_X = 64
 PLAYER_START_Y = 225
 
-
-
 class MyGame(arcade.View):
     """
     Main application class.
@@ -95,8 +93,6 @@ class MyGame(arcade.View):
         # Player Prograssion:
         self.score = 0
         self.total_time = 90.0
-        self.interacion = []
-
         self.interacion = []
 
         # Used to keep track of our scrolling
@@ -305,6 +301,7 @@ class MyGame(arcade.View):
         self.dont_touch_list.draw() # You touch, you die (lava, acid, and other enviromental hazards)
         self.wall_list.draw() # Player & Enemies cannot move through objects drawn in this layer (platforms, the ground, walls, etc.)
         self.coin_list.draw() # Money! Points! Touch this layer and add value to a counter!
+        self.enemy_list.draw()
         self.enemy_sprite.draw() # The Enemy layer
         self.player_list.draw() # The Player Layer
         self.player_sprite.draw() # ^

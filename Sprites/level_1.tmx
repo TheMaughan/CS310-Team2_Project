@@ -1,32 +1,32 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.4" tiledversion="1.4.3" orientation="orthogonal" renderorder="right-down" width="20" height="20" tilewidth="16" tileheight="16" infinite="0" backgroundcolor="#5c94fc" nextlayerid="6" nextobjectid="1">
+<map version="1.5" tiledversion="1.5.0" orientation="orthogonal" renderorder="right-down" width="20" height="20" tilewidth="16" tileheight="16" infinite="0" backgroundcolor="#5c94fc" nextlayerid="6" nextobjectid="1">
  <tileset firstgid="1" name="NES_MarioTiles" tilewidth="16" tileheight="16" spacing="1" tilecount="143" columns="13">
   <image source="NES_MarioTiles.png" trans="5c94fc" width="220" height="186"/>
  </tileset>
  <tileset firstgid="144" source="NES_MarioTiles.tsx"/>
  <layer id="2" name="Background" width="20" height="20">
   <data encoding="base64" compression="zlib">
-   eJxjYBhYEAPEsUAcRyXzMoE4C4izh5gbBiPAFy7khBm+cBkuYTYcgBmVzTIl00wmLGIgs5yhNCn6+YBYCIgF0NQ4AXEAhG7AZxZIPz9UP4gtiITRzSQWCGLBQw0AAFWcDTQ=
+   eJxjYBgFMUAcC8RxVDIvE4izgDibSuYNFMAXLuSEGb5wGS5hNhyAGZXNMiXTTCYsYiCznKE0Kfr5gFgIiAXQ1FxmYGgIgNB4AUg/P1Q/iC2IhNHNHEkAAIR4C6w=
   </data>
  </layer>
  <layer id="4" name="Coins" width="20" height="20">
   <data encoding="base64" compression="zlib">
-   eJxjYBhcIH6gHYADDFZ3URuM+nPgAK3dFI+DJkbPKBgF2AAAJe0DWA==
+   eJxjYBgFxID4gXYAncCoPwcO0NpN8ThoYvQMBfAOjcbHHgXUAQA5Ygax
   </data>
  </layer>
  <layer id="5" name="Don't Touch" width="20" height="20">
   <data encoding="base64" compression="zlib">
-   eJxjYBgFo2AUjIJRQG+ghgUPNQAAkcgAvw==
+   eJxjYBgFo2AUjIJRMApIBwAGQAAB
   </data>
  </layer>
  <layer id="1" name="Platforms" width="20" height="20">
   <data encoding="base64" compression="zlib">
-   eJxjYBgFpACTgXYADjBY3UVtQE9/ylHRLC0g1iZBPRsUsyOx0YEFFdxFinnSQCxDRfM0gFgTic+GA+MzD9lN6OaR4z5kM8gxj5EEjA2Qon8wYABuhwSM
+   eJxjYBgFwwGYDLQD6ATo6U85KpqlBcTaJKhng2J2JDY6sCDBvGNEqCFk3hMgfgrEz4g0bxURamAAZN4yNIwOtmMRkwZiGRLsAYElUIzNvxpArEm6eQ4gDDKPkQQ8AQsmRf9gwAAJjBF0
   </data>
  </layer>
  <layer id="3" name="Foreground" width="20" height="20">
   <data encoding="base64" compression="zlib">
-   eJxjYCAfxABxLBDHERAjFmQCcRYQZxMQGwXUBZTEGTYwGmcjA3DhwEMJDGW3DwYAACm3B2Q=
+   eJxjYBgFIx3EAHEsEMdRybxMIM4C4mwqmTcK6AO+kaieCw2jg1VEmPGJBPu2E6HmPxFqTgDxSSA+xYDbD5OAeDLUvCkEzLsKxNeA+DoRdg83AAAX7g6D
   </data>
  </layer>
 </map>
