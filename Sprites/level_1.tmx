@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.5" tiledversion="1.5.0" orientation="orthogonal" renderorder="right-down" width="20" height="20" tilewidth="16" tileheight="16" infinite="0" backgroundcolor="#5c94fc" nextlayerid="6" nextobjectid="1">
+<map version="1.5" tiledversion="1.5.0" orientation="orthogonal" renderorder="right-down" width="20" height="20" tilewidth="16" tileheight="16" infinite="0" backgroundcolor="#5c94fc" nextlayerid="7" nextobjectid="1">
  <tileset firstgid="1" name="NES_MarioTiles" tilewidth="16" tileheight="16" spacing="1" tilecount="143" columns="13">
   <image source="NES_MarioTiles.png" trans="5c94fc" width="220" height="186"/>
  </tileset>
@@ -21,27 +21,27 @@
  </tileset>
  <layer id="2" name="Background" width="20" height="20">
   <data encoding="base64" compression="zlib">
-   eJxjYBgFMUAcC8RxVDIvE4izgDibSuYNFMAXLuSEGb5wGS5hNhyAGZXNMiXTTCYsYiCznKE0Kfr5gFgIiAXQ1FxmYGgIgNB4AUg/P1Q/iC2IhNHNHEkAAIR4C6w=
+   eJxjYBgFMUAcC8RxVDIvE4izgDibSuYNFMAXLuSEGb5wGS5hNhyAGZXNMsVj5ic8epmwiIHMcobS2MB/HPr5gFgIiAXQ1F9mYGgIgNB4zQPp54fqB7EFkTC6mfjABBIxMeYRSxNjHqkAAD1NGUw=
   </data>
  </layer>
  <layer id="4" name="Coins" width="20" height="20">
   <data encoding="base64" compression="zlib">
-   eJxjYBgFxID4gXYAncCoPwcO0NpN8ThoYvQMBfAOjcbHHgXUAQA5Ygax
+   eJxjYBgFxID4gXYAncCoPwcO0NpN8ThoYvQMBfAOjcbHHk5gLZE0LQAApl0KEg==
   </data>
  </layer>
  <layer id="5" name="Don't Touch" width="20" height="20">
   <data encoding="base64" compression="zlib">
-   eJxjYBgFo2BggDzjQLtgFIyCUUAJAAB+vwAh
+   eJxjYBgFo2BggDzjQLtgFIyCoQ2+D7D9APo/ARg=
   </data>
  </layer>
  <layer id="1" name="Platforms" width="20" height="20">
   <data encoding="base64" compression="zlib">
-   eJxjYBgFwwGYDLQD6ATw+VOaynZpDKB5bFDMjsSmxLxjRKghZN4TIH4KxM+oZB4yAJm3DA2jg+1YxEBxLkOCPSCwBIqxAZCbNUk3zwGEQWxGEvAELJgU/YMBAwBInhBa
+   eJxjYBgFwwGYDLQD6ATw+VOaynZpDKB5bFDMjsSmxLxjRKghZN4TIH4KxM+oZB4yAJm3DAljM387FjFQnMuQYA8ILEHgBehyIDdrkm6eA5RewAikseEJSHgJERgG8JkzgUR3EmMeqRgAVo4h2Q==
   </data>
  </layer>
  <layer id="3" name="Foreground" width="20" height="20">
   <data encoding="base64" compression="zlib">
-   eJxjYBgFIx3EAHEsEMdRybxMIM4C4mwqmTcKBifgQsPkgE/Ucw4Y/CdCzQkgPgnEpxhw+2ESEE+GmjeFgHlXgfgaEF8n1bHDAAAAl3cMLA==
+   eJxjYBgFIx3EAHEsEMdRybxMIM4C4mwqmTcKBifgQsLUALuRMC3BCSA+CcSnGFD9gOyPSUA8GYqnEDDvKhBfA+LrRNo/gQhMLEBWT4imBQAA1rIUZg==
   </data>
  </layer>
 </map>
