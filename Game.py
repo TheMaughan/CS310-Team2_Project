@@ -121,12 +121,16 @@ class MyGame(arcade.View):
         if self.current_song_index >= len(self.music_list):
             self.current_song_index = 0
 
+    def level_music(self):
+        self.current_song_index = self.level
 
     def play_song(self):
         """What's currently in here, I think we could use as menu music, if we choose to add one."""
         # Stop what is currently playing.
         if self.music:
-            self.music.stop(self.current_player)
+            #self.music.stop(self.current_player)
+            self.current_player.pause()
+            self.current_player.delete()
 
         # Play the selected song. We could have the different areas set the current_song_index
         # to a different value and then call this function to change the song
@@ -231,7 +235,8 @@ class MyGame(arcade.View):
         #self.enemy.textures = []
 
 
-        self.music_list = ["Sprites\Old_Game_David_Fesliyan.mp3", "Sprites\sawsquarenoise-Final_Boss.mp3"]
+        self.music_list = ["Sprites\Old_Game_David_Fesliyan.mp3", "sounds\Super Mario Bros. Theme - 8-Bit Dance Remix.mp3", "Sprites\sawsquarenoise-Final_Boss.mp3"]
+        self.level_music()
         self.play_song() # Get the music going!
 
         #---------------------------- Map Code ----------------------------#
@@ -374,10 +379,9 @@ class MyGame(arcade.View):
         score_text = f"Score: {self.score}"
         arcade.draw_text(score_text, 10 + self.view_left, 10 + self.view_bottom, arcade.csscolor.WHITE, 18)
 
-        # ---- Enemy Interaction? ---- #
+        # ---- Enemy Interaction ---- #
         for enemy in self.enemy_hit_list:
-            if len(self.enemy_hit_list) > 0:
-                enemy.remove_from_sprite_lists()
+            enemy.remove_from_sprite_lists()
             question = self.interacion[len(self.enemy_hit_list)-1].get_question()
             answer = self.interacion[len(self.enemy_hit_list)-1].get_answer()
             #firstnum = self.interacion[len(self.enemy_hit_list)-1].get_first()
