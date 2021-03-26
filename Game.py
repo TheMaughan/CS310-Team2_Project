@@ -69,13 +69,14 @@ class MyGame(arcade.View):
         # Call the parent class initializer
         super().__init__()
 
-        
+        self.save_time = 3 # the game will be saved every X sec
+
         self.physics_engine: Optional[arcade.PymunkPhysicsEngine] = None
 
         # Variables that will hold sprite lists
         self.player_list: Optional[arcade.SpriteList] = None
         self.player_sprite = None
-        
+
         # Made in the Tiled Mapmaker:
         self.wall_list = None
         self.coin_list = None
@@ -87,7 +88,7 @@ class MyGame(arcade.View):
         self.player_sprite: Optional[Player] = None
         self.enemy_hit_list = None
         self.enemy_sprite = None
-        
+
         # Player Prograssion:
         self.score = 0
         self.total_time = 90.0
@@ -113,11 +114,13 @@ class MyGame(arcade.View):
         self.jump_sound = arcade.load_sound("sounds/jump1.wav")
         self.game_over = arcade.load_sound("sounds/gameover1.wav")
 
+
     def advance_song(self):
         """ Advance our pointer to the next song. This does NOT start the song. """
         self.current_song_index += 1
         if self.current_song_index >= len(self.music_list):
             self.current_song_index = 0
+
 
     def play_song(self):
         """What's currently in here, I think we could use as menu music, if we choose to add one."""
@@ -125,28 +128,80 @@ class MyGame(arcade.View):
         if self.music:
             self.music.stop(self.current_player)
 
-        # Play the selected song. We could have the different areas set the current_song_index 
+        # Play the selected song. We could have the different areas set the current_song_index
         # to a different value and then call this function to change the song
         """From https://www.fesliyanstudios.com/royalty-free-music/downloads-c/8-bit-music/6
         Another Website: https://freemusicarchive.org/genre/Chiptune"""
-        self.music = arcade.Sound(self.music_list[self.current_song_index], streaming=True) 
+        self.music = arcade.Sound(self.music_list[self.current_song_index], streaming=True)
         self.current_player = self.music.play(MUSIC_VOLUME)
         # This is a quick delay. If we don't do this, our elapsed time is 0.0
         # and on_update will think the music is over and advance us to the next
         # song before starting this one.
         time.sleep(0.03)
 
+
+
+    def read_previous_game(self):
+        """ Read the text file and make a dico with that contain all the states (position,..) of the previous game"""
+        d = {}
+        with open("previous_game.txt") as f:
+            for line in f:
+                (key, val) = line.split("=")
+                d[key] = val[:-1]
+        return d
+
+
+    def load_previous_game(self):
+
+        states_dico = self.read_previous_game()
+
+        # position of the player
+        player_pos = states_dico["player_sprite.position"].split(",")
+        self.player_sprite.position = [int(player_pos[0]), int(player_pos[1])]
+
+        # view left
+        #self.view_left = int(states_dico["view_left"])
+
+        # time
+        self.total_time = float(states_dico["total_time"])
+        # score
+        self.score = int(states_dico["score"])
+        # level
+        self.level = int(states_dico["level"])
+
+        self.continue_first_lunch = True # make that the set_viewport is called
+
+
+    def save_game(self, delta_time):
+
+        f = open('previous_game.txt', 'w') # delete all the content of the file
+
+        # position of the player
+        f.write(f"player_sprite.position={int(self.player_sprite.position[0])},{int(self.player_sprite.position[1])}\n")
+        # time
+        f.write(f"total_time={int(self.total_time)}\n")
+
+        f.write(f"score={self.score}\n")
+
+        f.write(f"level={self.level}\n")
+
+        f.close() # close  the file
+
+        print("-- game saved")
+
+
     def reset(self):        #reset the game
         # Set the background color
         self.total_time = 90.0
         self.view_left = 0
-        
-    def setup(self, level): #change this section 
+
+
+    def setup(self, level, lunch_type="new game"): #change this section
         """ Set up the game and initialize the variables. """
         arcade.set_background_color(arcade.color.LIGHT_BLUE) #change
         # Create the map layer lists
         self.enemy_list = arcade.SpriteList()
-        
+
         self.foreground_list = arcade.SpriteList()
         self.background_list = arcade.SpriteList()
         self.wall_list = arcade.SpriteList()
@@ -193,13 +248,13 @@ class MyGame(arcade.View):
         map_name = f"Sprites/level_{level}.tmx"
         # Read in the tiled map
         my_map = arcade.tilemap.read_tmx(map_name)
-        
+
 
         #- Read the Map & find the end of the map:
         self.end_of_map = my_map.map_size.width * GRID_PIXEL_SIZE
 
         # -- Map Layers -- #
-                                                      
+
         # Background Layer:
         self.background_list = arcade.tilemap.process_layer(my_map,
                                                             background_layer_name,
@@ -209,13 +264,13 @@ class MyGame(arcade.View):
         self.foreground_list = arcade.tilemap.process_layer(my_map,
                                                             foreground_layer_name,
                                                             TILE_SCALING)
-				
+
         # Platforms & Boundry objects (player cannot move through)
         self.wall_list = arcade.tilemap.process_layer(map_object=my_map,
                                                       layer_name=platforms_layer_name,
                                                       scaling=TILE_SCALING,
                                                       use_spatial_hash=True)
-        
+
         # -- Map Coins -- #
         # Name of the layer that has items for pick-up
         self.coin_list = arcade.tilemap.process_layer(my_map,
@@ -235,8 +290,8 @@ class MyGame(arcade.View):
         # ^^^^^^^^^^^^^^^^^^^ End of Map Code ^^^^^^^^^^^^^^^^^^^ #
 
 
-        
-        
+
+
         """
         # Name of map file to load
         map_name = "Sprites\map1.tmx"
@@ -251,9 +306,9 @@ class MyGame(arcade.View):
         self.ground_list = arcade.tilemap.process_layer(my_map,main_layer, TILE_SCALING )
         self.brick_list = arcade.tilemap.process_layer(my_map,main_layer, TILE_SCALING )
         self.clear_list =  arcade.tilemap.process_layer(my_map,main_layer, TILE_SCALING )
-        self.stone_list =  arcade.tilemap.process_layer(my_map,background_layer, TILE_SCALING ) 
-        self.cloud_list =  arcade.tilemap.process_layer(my_map,background_layer, TILE_SCALING ) 
-        self.sun_list =  arcade.tilemap.process_layer(my_map,background_layer, TILE_SCALING ) 
+        self.stone_list =  arcade.tilemap.process_layer(my_map,background_layer, TILE_SCALING )
+        self.cloud_list =  arcade.tilemap.process_layer(my_map,background_layer, TILE_SCALING )
+        self.sun_list =  arcade.tilemap.process_layer(my_map,background_layer, TILE_SCALING )
         self.house_list =  arcade.tilemap.process_layer(my_map,background_layer, TILE_SCALING )
         """
 
@@ -264,6 +319,14 @@ class MyGame(arcade.View):
         self.physics_engine_enemy = arcade.PhysicsEnginePlatformer(self.enemy_sprite,
                                                              self.wall_list,
                                                             GRAVITY)
+
+        if lunch_type == "continue":
+            self.load_previous_game()
+        else:
+            self.continue_first_lunch = False
+
+        # make that the game is saved every X sec
+        arcade.schedule(self.save_game, self.save_time)
 
 
     def on_draw(self):
@@ -288,7 +351,7 @@ class MyGame(arcade.View):
         #total_score = f" Score: {self.total_coins}"
 
 
-        
+
 
         # This command has to happen before we start drawing
         arcade.start_render()
@@ -304,7 +367,7 @@ class MyGame(arcade.View):
         self.player_list.draw() # The Player Layer
         self.player_sprite.draw() # ^
         self.foreground_list.draw() # This draws last, and goes in front of all
-        
+
         # --- Draw a Coin collection Counter, UI Element --- #
         score_text = f"Score: {self.score}"
         arcade.draw_text(score_text, 10 + self.view_left, 10 + self.view_bottom, arcade.csscolor.WHITE, 18)
@@ -338,8 +401,8 @@ class MyGame(arcade.View):
         #arcade.draw_text(output2, 610, 725, arcade.color.BLACK, 18)
 
         #if self.total_time < 0 :
-        #    arcade.draw_text(game_over, 75, 600, arcade.color.RED, 80) 
-        #    arcade.draw_text(total_score, 75, 520, arcade.color.RED, 80) 
+        #    arcade.draw_text(game_over, 75, 600, arcade.color.RED, 80)
+        #    arcade.draw_text(total_score, 75, 520, arcade.color.RED, 80)
         #if self.total_coins == 19:
         #        arcade.draw_text(won_text, 75, 520, arcade.color.RED, 40)
         #        arcade.draw_text(won_text, 75, 520, arcade.color.GLITTER, 41)
@@ -354,7 +417,7 @@ class MyGame(arcade.View):
             from EndMenu import GameOverView
             end_view = GameOverView()
             self.window.show_view(end_view)
-        
+
 
     def on_update(self, delta_time):
         """ Movement and game logic """
@@ -377,16 +440,16 @@ class MyGame(arcade.View):
                 self.player_sprite.health -= 1
             else: # if no more health or no more time
                 self.player_sprite.has_lost = True
-                self.player_sprite.health = 0                                 
+                self.player_sprite.health = 0
         """
         if self.total_time < 0:
-            arcade.set_background_color(arcade.color.BLACK) 
+            arcade.set_background_color(arcade.color.BLACK)
         else:
             self.total_time -= delta_time
         if self.total_coins == 19:
             arcade.set_background_color(arcade.color.BLACK)
         else:
-            
+
 	    """
 
         if self.music.is_complete(self.current_player):
@@ -428,17 +491,17 @@ class MyGame(arcade.View):
             changed = True
         """
         """
-        I think we might have some difficulty with making this to fit to a certain sized brick area. 
+        I think we might have some difficulty with making this to fit to a certain sized brick area.
         In the example I added a box around the maze area to limit where the player can go.
         """
         #arcade.draw_text("current math question",self.player_sprite.center_x , self.player_sprite.center_y + 100, arcade.color.BLACK, 18)
-        
+
         self.enemy_list.update()
         self.enemy_sprite.follow_sprite(self.player_sprite)
 
         for enemy in self.enemy_list:
             enemy.follow_sprite(self.player_sprite)
-			
+
         if self.enemy_sprite.top < 0:
             self.enemy_sprite.reset_pos()
 
@@ -478,7 +541,7 @@ class MyGame(arcade.View):
             self.view_bottom = 0
             changed_viewport = True
             arcade.play_sound(self.game_over)
-        
+
 
         # ------> Player Win Event <------ #
         if self.player_sprite.center_x >= self.end_of_map:
@@ -491,7 +554,7 @@ class MyGame(arcade.View):
 
     def on_key_press(self, key, modifiers):
         """Called whenever a key is pressed. """
-        
+
         # Currenlty if you move really fast, it doesn't add to the enemy_hit_list and therefore doesn't play the sound.
         self.enemy_hit_list = arcade.check_for_collision_with_list(self.player_sprite, self.enemy_list)
         if len(self.enemy_hit_list) > 0:
@@ -505,7 +568,7 @@ class MyGame(arcade.View):
 
         #if key == arcade.key.ESCAPE:
             # pass self, the current view, to preserve this view's state
-            
+
 
 
         # If the player presses a key, update the speed
