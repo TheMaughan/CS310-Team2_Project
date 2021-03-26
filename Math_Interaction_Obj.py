@@ -1,5 +1,15 @@
 import arcade
 import os
+import arcade.gui
+from arcade.gui import UIManager
+
+class MyFlatButton(arcade.gui.UIFlatButton):
+    """
+    To capture a button click, subclass the button and override on_click.
+    """
+    def on_click(self):
+        """ Called when user lets off button """
+        print("Click flat button. ")
 
 #For Pause
 WIDTH = 750
@@ -14,9 +24,11 @@ class PauseView(arcade.View):
         self.second_val = 0
         self.question = ""
         self.answer = 0
+        self.ui_manager = UIManager()
 
 
     def on_show(self):
+        #self.setup()
         arcade.set_background_color(arcade.color.LIGHT_BLUE)
 
     def on_draw(self):
@@ -51,8 +63,27 @@ class PauseView(arcade.View):
                          arcade.color.BLACK,
                          font_size=20,
                          anchor_x="center")
+        player_sprite = self.game_view.player_sprite
+        button = MyFlatButton(
+            'FlatButton',
+            player_sprite.left+100,
+            player_sprite.bottom+ 100,
+            width=250
+        )
+        self.ui_manager.add_ui_element(button)
+        button = MyFlatButton(
+            'FlatButton',
+            player_sprite.left-200,
+            player_sprite.bottom+ 100,
+            width=250
+        )
+        self.ui_manager.add_ui_element(button)
+
+        
+    #def setup(self):
 
     def on_key_press(self, key, _modifiers):
+        self.ui_manager.unregister_handlers()
         if key == arcade.key.ESCAPE:   # resume game
             self.window.show_view(self.game_view)
         elif key == arcade.key.ENTER:  # reset game
