@@ -4,6 +4,7 @@ import random, os, math, time
 from Player_Obj import Player
 from Enemy_Obj import Enemy
 from Problem_Obj import Problems
+from Math_Interaction_Obj import PauseView
 
 MUSIC_VOLUME = 0.1
 
@@ -21,7 +22,6 @@ GRID_PIXEL_SIZE = (SPRITE_PIXEL_SIZE * TILE_SCALING)
 SCREEN_WIDTH = 750
 SCREEN_HEIGHT = 800
 SCREEN_TITLE = "Platformer"
-
 
 MOVEMENT_SPEED = 3
 GRAVITY = 1 #0.2 change this to enable jumping
@@ -317,10 +317,19 @@ class MyGame(arcade.View):
                 enemy.remove_from_sprite_lists()
             question = self.interacion[len(self.enemy_hit_list)-1].get_question()
             answer = self.interacion[len(self.enemy_hit_list)-1].get_answer()
+            #firstnum = self.interacion[len(self.enemy_hit_list)-1].get_first()
+            #secondnum = self.interacion[len(self.enemy_hit_list)-1].get_second()
             #arcade.draw_point(self.player_sprite.center_x, self.player_sprite.center_y +100, arcade.color.BLACK, 18)
             arcade.draw_text(question, self.player_sprite.center_x , self.player_sprite.center_y + 100, arcade.color.BLACK, 18)
             arcade.draw_text(str(answer), self.player_sprite.center_x , self.player_sprite.center_y + 200, arcade.color.BLACK, 18)
+            pause = PauseView(self)
+            pause.set_question = question
+            pause.set_answer = answer
+            #pause.set_first = firstnum
+            #pause.set_second = secondnum
+            self.window.show_view(pause)
             #To be implimented once we fix the loop.
+
             """if int(guess) != answer:
                 self.player_sprite.health -= 1
             else:
@@ -496,6 +505,9 @@ class MyGame(arcade.View):
             self.interacion.append(temp)
             enemy.remove_from_sprite_lists()
 
+        #if key == arcade.key.ESCAPE:
+            # pass self, the current view, to preserve this view's state
+            
 
 
         # If the player presses a key, update the speed
