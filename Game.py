@@ -4,10 +4,9 @@ import random, os, math, time
 from Player_Obj import Player
 from Enemy_Obj import Enemy
 from Problem_Obj import Problems
+from Math_Interaction_Obj import PauseView
 
 MUSIC_VOLUME = 0.1
-
-MUSIC_VOLUME = 0.0
 
 # Constants used to scale our sprites from their original size
 CHARACTER_SCALING = 0.2
@@ -21,7 +20,6 @@ GRID_PIXEL_SIZE = (SPRITE_PIXEL_SIZE * TILE_SCALING)
 SCREEN_WIDTH = 750
 SCREEN_HEIGHT = 800
 SCREEN_TITLE = "Platformer"
-
 
 MOVEMENT_SPEED = 3
 GRAVITY = 1 #0.2 change this to enable jumping
@@ -115,11 +113,11 @@ class MyGame(arcade.View):
         self.jump_sound = arcade.load_sound("sounds/jump1.wav")
         self.game_over = arcade.load_sound("sounds/gameover1.wav")
 
-        def advance_song(self):
-            """ Advance our pointer to the next song. This does NOT start the song. """
-            self.current_song_index += 1
-            if self.current_song_index >= len(self.music_list):
-                self.current_song_index = 0
+    def advance_song(self):
+        """ Advance our pointer to the next song. This does NOT start the song. """
+        self.current_song_index += 1
+        if self.current_song_index >= len(self.music_list):
+            self.current_song_index = 0
 
     def play_song(self):
         """What's currently in here, I think we could use as menu music, if we choose to add one."""
@@ -317,10 +315,19 @@ class MyGame(arcade.View):
                 enemy.remove_from_sprite_lists()
             question = self.interacion[len(self.enemy_hit_list)-1].get_question()
             answer = self.interacion[len(self.enemy_hit_list)-1].get_answer()
+            #firstnum = self.interacion[len(self.enemy_hit_list)-1].get_first()
+            #secondnum = self.interacion[len(self.enemy_hit_list)-1].get_second()
             #arcade.draw_point(self.player_sprite.center_x, self.player_sprite.center_y +100, arcade.color.BLACK, 18)
             arcade.draw_text(question, self.player_sprite.center_x , self.player_sprite.center_y + 100, arcade.color.BLACK, 18)
             arcade.draw_text(str(answer), self.player_sprite.center_x , self.player_sprite.center_y + 200, arcade.color.BLACK, 18)
+            pause = PauseView(self)
+            pause.set_question = question
+            pause.set_answer = answer
+            #pause.set_first = firstnum
+            #pause.set_second = secondnum
+            self.window.show_view(pause)
             #To be implimented once we fix the loop.
+
             """if int(guess) != answer:
                 self.player_sprite.health -= 1
             else:
@@ -341,6 +348,9 @@ class MyGame(arcade.View):
 
         #####---- This calls the 'Game Over' Viewport ----#####
         if self.player_sprite.has_lost:
+            #self.music.stop(self.current_player) Instead:
+            self.current_player.pause()
+            self.current_player.delete()
             from EndMenu import GameOverView
             end_view = GameOverView()
             self.window.show_view(end_view)
@@ -366,10 +376,6 @@ class MyGame(arcade.View):
                 self.player_sprite.reset_pos()
                 self.player_sprite.health -= 1
             else: # if no more health or no more time
-                if self.music:
-                    # What the stop() function from arcade should be doing idk why but using stop() doesn't work.
-                    self.current_player.pause()
-                    self.current_player.delete()
                 self.player_sprite.has_lost = True
                 self.player_sprite.health = 0                                 
         """
@@ -385,6 +391,7 @@ class MyGame(arcade.View):
 
         if self.music.is_complete(self.current_player):
             self.play_song()
+        #Currently code is of no effect, since the music is just cleared when we call EndMenu.
         if self.total_time <= 0:
             if self.music:
                 # What the stop() function from arcade should be doing idk why but using stop() doesn't work.
@@ -496,6 +503,9 @@ class MyGame(arcade.View):
             self.interacion.append(temp)
             enemy.remove_from_sprite_lists()
 
+        #if key == arcade.key.ESCAPE:
+            # pass self, the current view, to preserve this view's state
+            
 
 
         # If the player presses a key, update the speed
