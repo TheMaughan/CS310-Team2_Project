@@ -29,7 +29,13 @@ LEFT_FACING = 1
 
 # How many pixels to move before we change the texture in the walking animation
 DISTANCE_TO_CHANGE_TEXTURE = 20
+UPDATES_PER_FRAME = 5  
 
+def load_texture_pair(filename):
+    return [
+        arcade.load_texture(filename),
+        arcade.load_texture(filename, flipped_horizontally=True)
+    ]
 
 class Player(arcade.Sprite):
     """ Player Class """
@@ -42,7 +48,13 @@ class Player(arcade.Sprite):
         self.health = 5
         self.has_lost = False
 
-        self.scale = SPRITE_SCALING_PLAYER
+        #Player will default to face right
+        self.character_face_direction = RIGHT_FACING
+        #Index of current texture
+        self.cur_texture = 0
+        self.scale = SPRITE_SCALING
+        #self.points = [[-22, -64], [22, -64], [22, 28], [-22, 28]]
+        self.points = [[-16, -40], [16, -40], [16, 28], [-16, 28]]
 
         main_path = "Sprites/mario/mario"
 
@@ -54,20 +66,9 @@ class Player(arcade.Sprite):
         for i in range(3):
             texture = arcade.load_texture_pair(f"{main_path}_walk{i}.png")
             self.walk_textures.append(texture)
-
-        self.texture = self.idle_texture_pair[0]
-
-        #Hit box is based on first image used
-        self.hit_box = self.texture.hit_box_points
-
-        #Player will default to face right
-        self.character_face_direction = RIGHT_FACING
-
-        #Index of current texture
-        self.cur_texture = 0
-
+        
         #distance traveled since changed texture
-        self.x_odometer = 0
+        #self.x_odometer = 0
 
     def pymunk_moved(self, physics_engine, dx, dy, d_angle):
         
@@ -135,3 +136,24 @@ class Player(arcade.Sprite):
 
         #self.center_x += -self.speed * math.sin(angle_rad)
         #self.center_y += -self.speed * math.cos(angle_rad)		#change
+
+    def update_animation(self, delta_time: float = 1/60):
+        # Figure out if we need to flip face left or right
+        if self.change_x < 0 and self.character_face_direction == RIGHT_FACING:
+            self.character_face_direction = LEFT_FACING
+        elif self.change_x > 0 and self.character_face_direction == LEFT_FACING:
+            self.character_face_direction = RIGHT_FACING
+
+        # Idle animation
+        if self.change_x == 0 and self.change_y == 0:
+            self.texture = self.idle_texture_pair[self.character_face_direction]
+            return
+
+        # Walking animation
+        self.cur_texture += 1
+        if self.cur_texture > 1%3 * UPDATES_PER_FRAME:
+            self.cur_texture = 0
+
+        frame = self.cur_texture // UPDATES_PER_FRAME
+        direction = self.character_face_direction
+        self.texture = self.walk_textures[frame][direction]

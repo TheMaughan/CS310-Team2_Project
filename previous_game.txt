@@ -1,0 +1,4 @@
+player_sprite.position=688,161
+total_time=67
+score=10
+level=1

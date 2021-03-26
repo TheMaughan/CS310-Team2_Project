@@ -140,7 +140,7 @@ class MyGame(arcade.View):
         time.sleep(0.03)
 
 
-
+    # ---- Save Game Code: ---- #
     def read_previous_game(self):
         """ Read the text file and make a dico with that contain all the states (position,..) of the previous game"""
         d = {}
@@ -170,6 +170,8 @@ class MyGame(arcade.View):
         self.level = int(states_dico["level"])
 
         self.continue_first_lunch = True # make that the set_viewport is called
+
+        # ^^^^ End of Save Game Code: ^^^^ #
 
 
     def save_game(self, delta_time):
