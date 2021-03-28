@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.5" tiledversion="1.5.0" orientation="orthogonal" renderorder="right-down" width="20" height="20" tilewidth="16" tileheight="16" infinite="0" backgroundcolor="#5c94fc" nextlayerid="7" nextobjectid="1">
+<map version="1.5" tiledversion="1.5.0" orientation="orthogonal" renderorder="right-down" width="20" height="20" tilewidth="16" tileheight="16" infinite="0" backgroundcolor="#5c94fc" nextlayerid="8" nextobjectid="2">
  <tileset firstgid="1" name="NES_MarioTiles" tilewidth="16" tileheight="16" spacing="1" tilecount="143" columns="13">
   <image source="NES_MarioTiles.png" trans="5c94fc" width="220" height="186"/>
  </tileset>
@@ -19,6 +19,8 @@
    <image width="16" height="24" source="enemies/hungry_flower/3.png"/>
   </tile>
  </tileset>
+ <tileset firstgid="291" source="1bit-monochrome_tilemap_transparent.tsx"/>
+ <tileset firstgid="691" source="1-bit_tiled.tsx"/>
  <layer id="2" name="Background" width="20" height="20">
   <data encoding="base64" compression="zlib">
    eJxjYBgFMUAcC8RxVDIvE4izgDibSuYNFMAXLuSEGb5wGS5hNhyAGZXNMsVj5ic8epmwiIHMcobS2MB/HPr5gFgIiAXQ1F9mYGgIgNB4zQPp54fqB7EFkTC6mfjABBIxMeYRSxNjHqkAAD1NGUw=
@@ -34,9 +36,18 @@
    eJxjYBgFo2BggDzjQLtgFIyCoQ2+D7D9APo/ARg=
   </data>
  </layer>
+ <objectgroup id="7" name="Moving Platforms">
+  <object id="1" gid="195" x="112" y="143.833" width="16" height="16">
+   <properties>
+    <property name="boundary_left" type="float" value="112"/>
+    <property name="boundary_right" type="float" value="887"/>
+    <property name="change_x" type="float" value="0.5"/>
+   </properties>
+  </object>
+ </objectgroup>
  <layer id="1" name="Platforms" width="20" height="20">
   <data encoding="base64" compression="zlib">
-   eJxjYBgFwwGYDLQD6ATw+VOaynZpDKB5bFDMjsSmxLxjRKghZN4TIH4KxM+oZB4yAJm3DAljM387FjFQnMuQYA8ILEHgBehyIDdrkm6eA5RewAikseEJSHgJERgG8JkzgUR3EmMeqRgAVo4h2Q==
+   eJxjYBgFwwGYDLQDBgGQprJ5GmTqmwrFlJjHBsXsQHwMiikxD5t+Us17AsRPgfgZlcxDBiDzliFhbOZvxyIGinMZEuwBgSUIvABdDuRmTdLNc4DSCxiBNDY8AQkvIQLDAD5zJpDoTmLMIxUDAOkMJE8=
   </data>
  </layer>
  <layer id="3" name="Foreground" width="20" height="20">

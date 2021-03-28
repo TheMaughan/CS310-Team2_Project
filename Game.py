@@ -73,6 +73,13 @@ class MyGame(arcade.View):
 
         self.physics_engine: Optional[arcade.PymunkPhysicsEngine] = None
 
+        # Track the current state of what key is pressed
+        self.left_pressed = False
+        self.right_pressed = False
+        self.up_pressed = False
+        self.down_pressed = False
+        self.jump_needs_reset = False
+
         # Variables that will hold sprite lists
         self.player_list: Optional[arcade.SpriteList] = None
         self.player_sprite = None
@@ -80,6 +87,7 @@ class MyGame(arcade.View):
         # Made in the Tiled Mapmaker:
         self.wall_list = None
         self.coin_list = None
+        #self.ladder_list = None
         self.foreground_list = None
         self.background_list = None
         self.dont_touch_list = None
@@ -214,7 +222,6 @@ class MyGame(arcade.View):
         self.coin_list = arcade.SpriteList()
 
         # Set up the player Change this
-        #self.player_sprite = Player("Sprites\player.png", SPRITE_SCALING)
         self.player_sprite = Player()
         self.player_list = arcade.SpriteList()
         self.player_list.append(self.player_sprite)
@@ -242,6 +249,8 @@ class MyGame(arcade.View):
         #---------------------------- Map Code ----------------------------#
         # Name of the layer in the file that has our platforms/walls
         platforms_layer_name = 'Platforms'
+        # Name of the layer containing moving platforms:
+        moving_platforms_layer_name = 'Moving Platforms'
         # Name of the layer that has items for pick-up
         coins_layer_name = 'Coins'
         # Name of the layer that has items for foreground
@@ -262,21 +271,29 @@ class MyGame(arcade.View):
 
         # -- Map Layers -- #
 
+        # Platforms & Boundry objects (player cannot move through)
+        self.wall_list = arcade.tilemap.process_layer(my_map,
+                                                      platforms_layer_name,
+                                                      TILE_SCALING,
+                                                      use_spatial_hash=True)
+        # -- Moving Platforms -- #
+        moving_platforms_list = arcade.tilemap.process_layer(my_map, moving_platforms_layer_name, TILE_SCALING)
+        for sprite in moving_platforms_list:
+            self.wall_list.append(sprite) #- All moving platforms are classified as 'walls' in our code.
+            #- Using the same logic for moving platforms, we can also make simple enemies.
+
         # Background Layer:
         self.background_list = arcade.tilemap.process_layer(my_map,
                                                             background_layer_name,
                                                             TILE_SCALING)
+        #self.ladder_list = arcade.tilemap.process_layer(my_map, "Ladders",
+                                                        #TILE_SCALING,
+                                                        #use_spatial_hash=True)
 
         # Foreground Layer:
         self.foreground_list = arcade.tilemap.process_layer(my_map,
                                                             foreground_layer_name,
                                                             TILE_SCALING)
-
-        # Platforms & Boundry objects (player cannot move through)
-        self.wall_list = arcade.tilemap.process_layer(map_object=my_map,
-                                                      layer_name=platforms_layer_name,
-                                                      scaling=TILE_SCALING,
-                                                      use_spatial_hash=True)
 
         # -- Map Coins -- #
         # Name of the layer that has items for pick-up
@@ -295,29 +312,6 @@ class MyGame(arcade.View):
         if my_map.background_color:
             arcade.set_background_color(my_map.background_color)
         # ^^^^^^^^^^^^^^^^^^^ End of Map Code ^^^^^^^^^^^^^^^^^^^ #
-
-
-
-
-        """
-        # Name of map file to load
-        map_name = "Sprites\map1.tmx"
-         # Name of the layer in the file that has our platforms/walls
-        main_layer = 'foreground'
-        background_layer = 'background'
-        #cloud_layer = 'cloud.png'
-        #house_layer = 'house.png'
-        #stone_layer = 'stone.png'
-        #sun_layer = 'sun.png'
-        my_map = arcade.tilemap.read_tmx(map_name)
-        self.ground_list = arcade.tilemap.process_layer(my_map,main_layer, TILE_SCALING )
-        self.brick_list = arcade.tilemap.process_layer(my_map,main_layer, TILE_SCALING )
-        self.clear_list =  arcade.tilemap.process_layer(my_map,main_layer, TILE_SCALING )
-        self.stone_list =  arcade.tilemap.process_layer(my_map,background_layer, TILE_SCALING )
-        self.cloud_list =  arcade.tilemap.process_layer(my_map,background_layer, TILE_SCALING )
-        self.sun_list =  arcade.tilemap.process_layer(my_map,background_layer, TILE_SCALING )
-        self.house_list =  arcade.tilemap.process_layer(my_map,background_layer, TILE_SCALING )
-        """
 
         # --------- Physics Engine & Logic --------- #
         self.physics_engine = arcade.PhysicsEnginePlatformer(self.player_sprite,
@@ -340,7 +334,6 @@ class MyGame(arcade.View):
         """
         Render the screen.
         """
-
          #timer set up
 
         minutes = int(self.total_time) // 60
@@ -348,17 +341,6 @@ class MyGame(arcade.View):
         seconds = int(self.total_time) % 60
 
         Time = f"Time:  {minutes: 02d}:{seconds:02d}"
-
-        #output2 = f"Total coins: {self.total_coins} "
-
-        #won_text = "You got all the coins!"
-
-        #game_over = "Game Over"
-
-        #total_score = f" Score: {self.total_coins}"
-
-
-
 
         # This command has to happen before we start drawing
         arcade.start_render()
@@ -369,10 +351,14 @@ class MyGame(arcade.View):
         self.dont_touch_list.draw() # You touch, you die (lava, acid, and other enviromental hazards)
         self.wall_list.draw() # Player & Enemies cannot move through objects drawn in this layer (platforms, the ground, walls, etc.)
         self.coin_list.draw() # Money! Points! Touch this layer and add value to a counter!
+        #self.ladder_list.draw() # I don't have any ladders yet, understanding the code for this will take time... maybe later...
+
         self.enemy_list.draw()
         self.enemy_sprite.draw() # The Enemy layer
+
         self.player_list.draw() # The Player Layer
         self.player_sprite.draw() # ^
+
         self.foreground_list.draw() # This draws last, and goes in front of all
 
         # --- Draw a Coin collection Counter, UI Element --- #
@@ -432,8 +418,30 @@ class MyGame(arcade.View):
         self.physics_engine_enemy.update()
 
         #self.player_sprite.update()
-        self.player_list.update()
+        #self.player_list.update()
         self.player_list.update_animation()
+
+        #update map animations:
+        self.coin_list.update_animation(delta_time)
+        self.background_list.update_animation(delta_time)
+        self.foreground_list.update_animation(delta_time)
+        self.dont_touch_list.update_animation(delta_time)
+        
+
+        # ----- Moving Platform Logic ----- #
+        #update moving platforms:
+        self.wall_list.update()
+        # See if the moving wall hit a boundary and needs to reverse direction.
+        for wall in self.wall_list:
+
+            if wall.boundary_right and wall.right > wall.boundary_right and wall.change_x > 0:
+                wall.change_x *= -1
+            if wall.boundary_left and wall.left < wall.boundary_left and wall.change_x < 0:
+                wall.change_x *= -1
+            if wall.boundary_top and wall.top > wall.boundary_top and wall.change_y > 0:
+                wall.change_y *= -1
+            if wall.boundary_bottom and wall.bottom < wall.boundary_bottom and wall.change_y < 0:
+                wall.change_y *= -1
 
 
         #coin_hit_list = arcade.check_for_collision_with_list(self.player_sprite,self.coin_list
@@ -557,6 +565,42 @@ class MyGame(arcade.View):
             self.view_left = 0
             self.view_bottom = 0
             changed_viewport = True
+            
+            #Load the player
+
+
+    # For more smooth player movement:
+    def process_keychange(self):
+        """
+        Called when we change a key up/down or we move on/off a ladder.
+        """
+        # Process up/down
+        if self.up_pressed and not self.down_pressed:
+            if self.physics_engine.is_on_ladder(): 
+                #The ladder code doesn't work yet, there has to be more code in the Plaer() class
+                self.player_sprite.change_y = MOVEMENT_SPEED
+            elif self.physics_engine.can_jump(y_distance=10) and not self.jump_needs_reset:
+                self.player_sprite.change_y = JUMP_SPEED
+                self.jump_needs_reset = True
+                arcade.play_sound(self.jump_sound)
+        elif self.down_pressed and not self.up_pressed:
+            if self.physics_engine.is_on_ladder():
+                self.player_sprite.change_y = -MOVEMENT_SPEED
+
+        # Process up/down when on a ladder and no movement
+        if self.physics_engine.is_on_ladder():
+            if not self.up_pressed and not self.down_pressed:
+                self.player_sprite.change_y = 0
+            elif self.up_pressed and self.down_pressed:
+                self.player_sprite.change_y = 0
+
+        # Process left/right
+        if self.right_pressed and not self.left_pressed:
+            self.player_sprite.change_x = MOVEMENT_SPEED
+        elif self.left_pressed and not self.right_pressed:
+            self.player_sprite.change_x = -MOVEMENT_SPEED
+        else:
+            self.player_sprite.change_x = 0
 
     def on_key_press(self, key, modifiers):
         """Called whenever a key is pressed. """
@@ -575,8 +619,19 @@ class MyGame(arcade.View):
         #if key == arcade.key.ESCAPE:
             # pass self, the current view, to preserve this view's state
 
+        # Better movement is best when using pymunk physics:
+        if key == arcade.key.UP or key == arcade.key.W:
+            self.up_pressed = True
+        elif key == arcade.key.DOWN or key == arcade.key.S:
+            self.down_pressed = True
+        elif key == arcade.key.LEFT or key == arcade.key.A:
+            self.left_pressed = True
+        elif key == arcade.key.RIGHT or key == arcade.key.D:
+            self.right_pressed = True
 
+        self.process_keychange()
 
+        """
         # If the player presses a key, update the speed
         if key == arcade.key.UP:
             if self.physics_engine.can_jump():
@@ -586,16 +641,30 @@ class MyGame(arcade.View):
             self.player_sprite.change_x = -MOVEMENT_SPEED
         elif key == arcade.key.RIGHT:
             self.player_sprite.change_x = MOVEMENT_SPEED
+        """
 
     def on_key_release(self, key, modifiers):
         """Called when the user releases a key. """
-
+        """
         # If a player releases a key, zero out the speed.
         # This doesn't work well if multiple keys are pressed.
         # Use 'better move by keyboard' example if you need to
         # handle this.
         if key == arcade.key.LEFT or key == arcade.key.RIGHT:
             self.player_sprite.change_x = 0
+        """
+        # Better movement is best when using pymunk physics:
+        if key == arcade.key.UP or key == arcade.key.W:
+            self.up_pressed = False
+            self.jump_needs_reset = False
+        elif key == arcade.key.DOWN or key == arcade.key.S:
+            self.down_pressed = False
+        elif key == arcade.key.LEFT or key == arcade.key.A:
+            self.left_pressed = False
+        elif key == arcade.key.RIGHT or key == arcade.key.D:
+            self.right_pressed = False
+
+        self.process_keychange()
 
 """
 def main():
