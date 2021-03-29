@@ -1,5 +1,7 @@
 import random
 
+"""This creates a math problem based off of some randomly generated integers that will be either multiplied, divied, added, or subtracted form each other."""
+
 class Problems():
 
     def __init__(self):
@@ -7,6 +9,8 @@ class Problems():
         self.operator = random.randrange(4)
         self.first_val = random.randrange(9)
         self.second_val = random.randrange(9)
+        self.third_val = random.randrange(8)
+        self.fourth_val = random.randrange(7)
         self.question = ""
         self.answer = 0
         self.question = "{} {} {}".format(self.first_val, self.MATH_LIST[self.operator], self.second_val)
@@ -34,3 +38,9 @@ class Problems():
 
     def get_second(self):
         return self.second_val
+
+    def get_third(self):
+        return self.third_val
+
+    def get_fourth(self):
+        return self.fourth_val
