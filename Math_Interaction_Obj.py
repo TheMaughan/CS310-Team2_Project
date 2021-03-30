@@ -43,7 +43,7 @@ class PauseView(arcade.View):
                     return
                 else:
                     self.q1 = self.set_first
-                    print("$$$$$$$$$$$")
+                    #print("$$$$$$$$$$$")
             if question == 1:
                 if self.questionwithans == 1:
                     return
@@ -53,7 +53,7 @@ class PauseView(arcade.View):
                 if self.questionwithans == 2:
                     return
                 else:
-                    self.q3 = self.set_first + self.set_second
+                    self.q3 = self.set_first + self.set_second + 2
 
             if question == 3:
                 if self.questionwithans == 3:
@@ -80,7 +80,7 @@ class PauseView(arcade.View):
                                           color=arcade.color.LIGHT_BLUE + (200,))
         """
         #changed the x and y so the question always was above the player
-        arcade.draw_text(self.set_question, player_sprite.left-25, player_sprite.bottom + 300,
+        arcade.draw_text(self.set_question, SCREEN_WIDTH/2 + 30, SCREEN_HEIGHT/2,
                          arcade.color.BLACK, font_size=50, anchor_x="center")
 
         # Show tip to return or reset
@@ -153,7 +153,13 @@ class PauseView(arcade.View):
         
     def on_mouse_press(self, _x, _y, _button, _modifiers):
         """ If the user presses the mouse button, start the game. """
-        if self.button_states["Q1"] == True:
+        if self.button_states[str(self.q1)] == True:
+            self.window.show_view(self.game_view)
+        if self.button_states[str(self.q2)] == True:
+            self.window.show_view(self.game_view)
+        if self.button_states[str(self.q3)] == True:
+            self.window.show_view(self.game_view)
+        if self.button_states[str(self.q4)] == True:
             self.window.show_view(self.game_view)
 
 
