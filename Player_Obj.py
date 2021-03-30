@@ -131,13 +131,13 @@ class Player(arcade.Sprite):
         if self.left < 0:
             self.left = 0
         #This will need to change based off of the map size.
-        elif self.right > SCREEN_WIDTH*5 - 160:
+        """elif self.right > SCREEN_WIDTH*5 - 160:
             self.right = SCREEN_WIDTH*5 - 160
-        """if self.bottom < 0:
+        if self.bottom < 0:
             self.bottom = 0"""
 
-        if self.top > SCREEN_HEIGHT - 1:
-            self.top = SCREEN_HEIGHT - 1
+        """if self.top > SCREEN_HEIGHT - 1:
+            self.top = SCREEN_HEIGHT - 1"""
 
         #angle_rad = math.radians(self.angle)
 
