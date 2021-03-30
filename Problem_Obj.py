@@ -25,7 +25,7 @@ class Problems():
             self.answer = self.first_val + self.second_val
         elif self.operator == 3:
             self.answer = self.first_val - self.second_val
-        round(self.answer, 2)
+        self.answer = round(self.answer, 3)
         #print("question is: " + str(self.question) + " answer is: " + str(self.answer))
 
     def get_question(self):
