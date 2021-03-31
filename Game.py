@@ -367,14 +367,14 @@ class MyGame(arcade.View):
 
         # ---- Enemy Interaction ---- #
         for enemy in self.enemy_hit_list:
-            enemy.remove_from_sprite_lists()
+            self.enemy_hit_list.pop()
             question = self.interacion[len(self.enemy_hit_list)-1].get_question()
             answer = self.interacion[len(self.enemy_hit_list)-1].get_answer()
             firstnum = self.interacion[len(self.enemy_hit_list)-1].get_first()
             secondnum = self.interacion[len(self.enemy_hit_list)-1].get_second()
             #arcade.draw_point(self.player_sprite.center_x, self.player_sprite.center_y +100, arcade.color.BLACK, 18)
-            arcade.draw_text(question, self.player_sprite.center_x , self.player_sprite.center_y + 100, arcade.color.BLACK, 18)
-            arcade.draw_text(str(answer), self.player_sprite.center_x , self.player_sprite.center_y + 200, arcade.color.BLACK, 18)
+            #arcade.draw_text(question, self.player_sprite.center_x , self.player_sprite.center_y + 100, arcade.color.BLACK, 18)
+            #arcade.draw_text(str(answer), self.player_sprite.center_x , self.player_sprite.center_y + 200, arcade.color.BLACK, 18)
             pause = PauseView(self)
             pause.set_question = question
             pause.set_answer = answer
