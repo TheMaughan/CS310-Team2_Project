@@ -20,6 +20,7 @@ class PauseView(arcade.View):
         self.questionwithans = 0
         self.run = True
         self.operator = random.randrange(4)
+        self.tries = 2
 
         self.button_question1 = {"text": "Q1", "pos": (SCREEN_WIDTH/3, 180), "size": (140, 60)}
         self.button_question2 = {"text": "Q2", "pos": (SCREEN_WIDTH/3, 90), "size": (140, 60)}
@@ -82,37 +83,10 @@ class PauseView(arcade.View):
         #changed the x and y so the question always was above the player
         arcade.draw_text(self.set_question, SCREEN_WIDTH/2 + 30, SCREEN_HEIGHT/2,
                          arcade.color.BLACK, font_size=50, anchor_x="center")
+        arcade.draw_text(f"You have {self.tries} trie(s) left", SCREEN_WIDTH/2 + 30, SCREEN_HEIGHT/2 - 40,
+                         arcade.color.BLACK, font_size=50, anchor_x="center")
 
-        # Show tip to return or reset
-        """
-        arcade.draw_text("70",
-                         player_sprite.left-50,
-                         player_sprite.bottom+ 200,
-                         arcade.color.BLACK,
-                         font_size=20,
-                         anchor_x="center")
-        arcade.draw_text("67",
-                         player_sprite.left+50,
-                         player_sprite.bottom+ 200,
-                         arcade.color.BLACK,
-                         font_size=20,
-                         anchor_x="center")
-        player_sprite = self.game_view.player_sprite
-        button = MyFlatButton(
-            'FlatButton',
-            player_sprite.left+100,
-            player_sprite.bottom+ 100,
-            width=250
-        )
-        self.ui_manager.add_ui_element(button)
-        button = MyFlatButton(
-            'FlatButton',
-            player_sprite.left-200,
-            player_sprite.bottom+ 100,
-            width=250
-        )
-        self.ui_manager.add_ui_element(button)
-        """
+        
         #print(self.first_val)
         if self.run == True:
             
@@ -154,13 +128,37 @@ class PauseView(arcade.View):
     def on_mouse_press(self, _x, _y, _button, _modifiers):
         """ If the user presses the mouse button, start the game. """
         if self.button_states[str(self.q1)] == True:
-            self.window.show_view(self.game_view)
+            if self.questionwithans == 0: 
+                self.window.show_view(self.game_view)
+            else:
+                print("wrong")
+                self.tries -= 1
+            if self.tries == 0:
+                self.window.show_view(self.game_view)
         if self.button_states[str(self.q2)] == True:
-            self.window.show_view(self.game_view)
+            if self.questionwithans == 1: 
+                self.window.show_view(self.game_view)
+            else:
+                print("wrong")
+                self.tries -= 1
+            if self.tries == 0:
+                self.window.show_view(self.game_view)
         if self.button_states[str(self.q3)] == True:
-            self.window.show_view(self.game_view)
+            if self.questionwithans == 2: 
+                self.window.show_view(self.game_view)
+            else:
+                print("wrong")
+                self.tries -= 1
+            if self.tries == 0:
+                self.window.show_view(self.game_view)
         if self.button_states[str(self.q4)] == True:
-            self.window.show_view(self.game_view)
+            if self.questionwithans == 3: 
+                self.window.show_view(self.game_view)
+            else:
+                print("wrong")
+                self.tries -= 1
+            if self.tries == 0:
+                self.window.show_view(self.game_view)
 
 
     def button(self, attributes):
