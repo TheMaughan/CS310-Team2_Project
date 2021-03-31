@@ -15,8 +15,8 @@ TILE_SCALING = 3
 COIN_SCALING = 3
 SPRITE_PIXEL_SIZE = 16
 GRID_PIXEL_SIZE = (SPRITE_PIXEL_SIZE * TILE_SCALING)
-#TILE_SCALING = 0.9
 
+# Sets up the screen dimensions and the window title.
 SCREEN_WIDTH = 750
 SCREEN_HEIGHT = 800
 SCREEN_TITLE = "Platformer"
@@ -41,17 +41,7 @@ PLAYER_MAX_VERTICAL_SPEED = 1600
 DEFAULT_DAMPING = 0.4
 PLAYER_DAMPING = 1.0
 
-"""
-LEFT_VIEWPORT_MARGIN = 200
-RIGHT_VIEWPORT_MARGIN = 200
-BOTTOM_VIEWPORT_MARGIN = 150
-TOP_VIEWPORT_MARGIN = 100
-"""
-
-VIEWPORT_MARGIN = 250
-
-TEXTURE_LEFT = 0
-TEXTURE_RIGHT = 1
+VIEWPORT_MARGIN = 250 # Used to create the scrolling feature. If it is changed to a smaller value there will be more movement room before the screen scrolls.
 
 PLAYER_START_X = 64
 PLAYER_START_Y = 225
@@ -110,49 +100,49 @@ class MyGame(arcade.View):
         self.end_of_map = 0
         self.level = 1
 
-        #Sound
+        # Music
         self.music_list = []
         self.current_song_index = 0
         self.current_player = None
         self.music = None
-        self.hit_sound = arcade.load_sound("Sprites/gameover4.wav")
 
         # Load sounds:
+        self.hit_sound = arcade.load_sound("Sprites/gameover4.wav")
         self.collect_coin_sound = arcade.load_sound("sounds/coin1.wav")
         self.jump_sound = arcade.load_sound("sounds/jump1.wav")
         self.game_over = arcade.load_sound("sounds/gameover1.wav")
 
-        if self.level == 2 and self.player_sprite.health == 5:
-            self.total_time = 100.0
-
-
+    # ---- Background Music Functions: ---- #
+    """Will iterate through the index of songs. If it reaches the end it will start over from the beginning again."""
     def advance_song(self):
-        """ Advance our pointer to the next song. This does NOT start the song. """
         self.current_song_index += 1
         if self.current_song_index >= len(self.music_list):
             self.current_song_index = 0
 
+    """Will match the song to be played with the current level.
+    Note that the levels start at one, so there has to be another song in the index location of 0 for this to work"""
     def level_music(self):
         self.current_song_index = self.level
 
+    """What actually gets the songs to play.
+    It requires a player that will be used to access and adjust the songs."""
     def play_song(self):
-        """What's currently in here, I think we could use as menu music, if we choose to add one."""
-        # Stop what is currently playing.
+        # Stop what is currently playing. This is to avoid having mutliple songs playing at the same time.
         if self.music:
-            #self.music.stop(self.current_player)
+            # This will keep there from just being silence playing and delete the player to keep there from wasted memory usage.
             self.current_player.pause()
             self.current_player.delete()
 
-        # Play the selected song. We could have the different areas set the current_song_index
-        # to a different value and then call this function to change the song
         """From https://www.fesliyanstudios.com/royalty-free-music/downloads-c/8-bit-music/6
         Another Website: https://freemusicarchive.org/genre/Chiptune"""
-        self.music = arcade.Sound(self.music_list[self.current_song_index], streaming=True)
+        # Basically sets up the directory to the music.
+        self.music = arcade.Sound(self.music_list[self.current_song_index], streaming=True) # Streaming will tell the program to stream instead of making a copy of the file.
+        # Creates the music player, using the stored information from music. 
         self.current_player = self.music.play(MUSIC_VOLUME)
-        # This is a quick delay. If we don't do this, our elapsed time is 0.0
-        # and on_update will think the music is over and advance us to the next
-        # song before starting this one.
+        # Gives a quick pause in the music. If we did not include this it would see the song as being done and skip through it.
         time.sleep(0.03)
+
+        # ^^^^ End of Background Music ^^^^ #
 
 
     # ---- Save Game Code: ---- #
@@ -187,8 +177,6 @@ class MyGame(arcade.View):
 
         self.continue_first_lunch = True # make that the set_viewport is called
 
-        # ^^^^ End of Save Game Code: ^^^^ #
-
 
     def save_game(self, delta_time):
 
@@ -206,6 +194,8 @@ class MyGame(arcade.View):
         f.close() # close  the file
 
         print("-- game saved")
+
+        # ^^^^ End of Save Game Code: ^^^^ #
 
 
     def reset(self):        #reset the game
@@ -233,8 +223,7 @@ class MyGame(arcade.View):
         self.player_sprite.center_y = PLAYER_START_Y
         #self.player = arcade.AnimatedWalkingSprite()
 
-        #self.enemy_hit_list = arcade.SpriteList()
-
+        # Set up for the Enemy Sprite.
         self.enemy_hit_list = arcade.check_for_collision_with_list(self.player_sprite, self.enemy_list)
         self.enemy_sprite = Enemy("Sprites\\flipped_creeper.png", SPRITE_SCALING *.2)
         self.enemy_sprite.center_x = 250
@@ -243,9 +232,8 @@ class MyGame(arcade.View):
 
         #self.enemy_list = arcade.SpriteList()
         #self.enemy = arcade.AnimatedTimeSprite()
-        #self.enemy.textures = []
 
-
+        # Set up for the music. Includes a list with each song title, sets to the current level, and then plays song.
         self.music_list = ["Sprites\Old_Game_David_Fesliyan.mp3", "sounds\Super Mario Bros. Theme - 8-Bit Dance Remix.mp3", "Sprites\sawsquarenoise-Final_Boss.mp3"]
         self.level_music()
         self.play_song() # Get the music going!
@@ -376,32 +364,18 @@ class MyGame(arcade.View):
             answer = self.interacion[len(self.enemy_hit_list)-1].get_answer()
             firstnum = self.interacion[len(self.enemy_hit_list)-1].get_first()
             secondnum = self.interacion[len(self.enemy_hit_list)-1].get_second()
-            #arcade.draw_point(self.player_sprite.center_x, self.player_sprite.center_y +100, arcade.color.BLACK, 18)
-            #arcade.draw_text(question, self.player_sprite.center_x , self.player_sprite.center_y + 100, arcade.color.BLACK, 18)
-            #arcade.draw_text(str(answer), self.player_sprite.center_x , self.player_sprite.center_y + 200, arcade.color.BLACK, 18)
+            
             pause = PauseView(self)
             pause.set_question = question
             pause.set_answer = answer
             pause.set_first = firstnum
             pause.set_second = secondnum
             self.window.show_view(pause)
-            #To be implimented once we fix the loop.
-
             """if int(guess) != answer:
                 self.player_sprite.health -= 1
             else:
                 break"""
 
-	#take this part ot. Draws text on screen
-        #arcade.draw_text(output, 625, 750, arcade.color.BLACK, 18) timer
-        #arcade.draw_text(output2, 610, 725, arcade.color.BLACK, 18)
-
-        #if self.total_time < 0 :
-        #    arcade.draw_text(game_over, 75, 600, arcade.color.RED, 80)
-        #    arcade.draw_text(total_score, 75, 520, arcade.color.RED, 80)
-        #if self.total_coins == 19:
-        #        arcade.draw_text(won_text, 75, 520, arcade.color.RED, 40)
-        #        arcade.draw_text(won_text, 75, 520, arcade.color.GLITTER, 41)
         arcade.draw_text(Time, 20 + self.view_left, 750, arcade.color.YELLOW_ROSE, 26)
         arcade.draw_text("lives : "+str(self.player_sprite.health), 625 + self.view_left, 750, arcade.color.RED, 32)
 
@@ -421,7 +395,7 @@ class MyGame(arcade.View):
         self.physics_engine.update()
         self.physics_engine_enemy.update()
 
-        #self.player_sprite.update()
+        self.player_sprite.update()
         #self.player_list.update()
         self.player_list.update_animation()
 
@@ -451,7 +425,6 @@ class MyGame(arcade.View):
         #coin_hit_list = arcade.check_for_collision_with_list(self.player_sprite,self.coin_list
         self.total_time -= delta_time
 
-        self.player_sprite.update()
         if self.player_sprite.top < 0 or self.total_time < 0:
             if self.player_sprite.health > 1 and self.total_time > 0: # if the player falls off the screen
                 self.view_left = 0
@@ -460,17 +433,8 @@ class MyGame(arcade.View):
             else: # if no more health or no more time
                 self.player_sprite.has_lost = True
                 self.player_sprite.health = 0
-        """
-        if self.total_time < 0:
-            arcade.set_background_color(arcade.color.BLACK)
-        else:
-            self.total_time -= delta_time
-        if self.total_coins == 19:
-            arcade.set_background_color(arcade.color.BLACK)
-        else:
 
-	    """
-
+        # Loop through the music by checking if the music in the music player finished.
         if self.music.is_complete(self.current_player):
             self.play_song()
         #Currently code is of no effect, since the music is just cleared when we call EndMenu.
@@ -481,6 +445,11 @@ class MyGame(arcade.View):
                 self.current_player.delete()
             self.advance_song()
             self.play_song()
+            
+        position = self.music.get_stream_position(self.current_player)
+        # Trying to set up for allowing the time to reset on level 2
+        if self.level == 2 and self.player_sprite.health == 5 and position == 0.0 :
+            self.total_time = 100.0
 
         """
         Keep track of if we changed the boundary. We don't want to call the
@@ -497,32 +466,27 @@ class MyGame(arcade.View):
         if self.player_sprite.right > right_boundary:
             self.view_left += self.player_sprite.right - right_boundary
             changed = True
-        # Scroll up
-        """
-        top_boundary = self.view_bottom + SCREEN_HEIGHT - VIEWPORT_MARGIN
-        if self.player_sprite.top > top_boundary:
-            self.view_bottom += self.player_sprite.top - top_boundary
-            changed = True
-        # Scroll down
-        bottom_boundary = self.view_bottom + VIEWPORT_MARGIN
-        if self.player_sprite.bottom < bottom_boundary:
-            self.view_bottom -= bottom_boundary - self.player_sprite.bottom
-            changed = True
-        """
-        """
-        I think we might have some difficulty with making this to fit to a certain sized brick area.
-        In the example I added a box around the maze area to limit where the player can go.
-        """
-        #arcade.draw_text("current math question",self.player_sprite.center_x , self.player_sprite.center_y + 100, arcade.color.BLACK, 18)
 
+        # Some enemy updates
         self.enemy_list.update()
         self.enemy_sprite.follow_sprite(self.player_sprite)
 
+        # Calls function from the enemy class to have it follow the player sprite
         for enemy in self.enemy_list:
             enemy.follow_sprite(self.player_sprite)
 
+        # If the enemy falls off of the screen then reset it back to it's original position.
         if self.enemy_sprite.top < 0:
             self.enemy_sprite.reset_pos()
+
+        # Sets up the hit list for when there are enemies that are in the hitbox of the player sprite
+        self.enemy_hit_list = arcade.check_for_collision_with_list(self.player_sprite, self.enemy_list)
+        
+        # A loop to go through and add Problem objects to be used to display a math problem.
+        for enemy in self.enemy_hit_list:
+            temp = Problems()
+            self.interacion.append(temp)
+            enemy.remove_from_sprite_lists()
 
         if changed:
             # Only scroll to integers. Otherwise we end up with pixels that
@@ -610,19 +574,9 @@ class MyGame(arcade.View):
     def on_key_press(self, key, modifiers):
         """Called whenever a key is pressed. """
 
-        # Currenlty if you move really fast, it doesn't add to the enemy_hit_list and therefore doesn't play the sound.
-        self.enemy_hit_list = arcade.check_for_collision_with_list(self.player_sprite, self.enemy_list)
-        if len(self.enemy_hit_list) > 0:
+        if len(self.enemy_hit_list) > 0: # Play a noise when an enemy is hit.
             arcade.play_sound(self.hit_sound)
 
-        #add here
-        for enemy in self.enemy_hit_list:
-            temp = Problems()
-            self.interacion.append(temp)
-            enemy.remove_from_sprite_lists()
-
-        #if key == arcade.key.ESCAPE:
-            # pass self, the current view, to preserve this view's state
 
         # Better movement is best when using pymunk physics:
         if key == arcade.key.UP or key == arcade.key.W:
@@ -636,17 +590,6 @@ class MyGame(arcade.View):
 
         self.process_keychange()
 
-        """
-        # If the player presses a key, update the speed
-        if key == arcade.key.UP:
-            if self.physics_engine.can_jump():
-                self.player_sprite.change_y = JUMP_SPEED
-                arcade.play_sound(self.jump_sound)
-        elif key == arcade.key.LEFT:
-            self.player_sprite.change_x = -MOVEMENT_SPEED
-        elif key == arcade.key.RIGHT:
-            self.player_sprite.change_x = MOVEMENT_SPEED
-        """
 
     def on_key_release(self, key, modifiers):
         """Called when the user releases a key. """
@@ -671,14 +614,3 @@ class MyGame(arcade.View):
 
         self.process_keychange()
 
-"""
-def main():
-    "" Main method ""
-    window = MyGame(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE)
-    window.setup()
-    arcade.run()
-
-
-if __name__ == "__main__":
-    main()
-"""
