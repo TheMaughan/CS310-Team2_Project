@@ -6,9 +6,8 @@ TEXTURE_LEFT = 0
 TEXTURE_RIGHT = 1
 
 
-
+""" Enemy Class """
 class Enemy(arcade.Sprite):
-    """ Enemy Class """
 
     def __init__(self, image, scale):
 
@@ -28,40 +27,31 @@ class Enemy(arcade.Sprite):
         # By default, face right.
         self.texture = texture
 
+    # Reset position for when the enemy falls off the edge.
     def reset_pos(self):
         self.center_x = 250
         self.center_y = 125
-
-    
 
     def reset(self): # reset the enemy
         self.reset_pos()
 
     def update(self):
-
-        # Check for out-of-bounds
-
         # Changes the spirite to face left or right respectively. For some reason not currently working.
         if self.change_x < 0:
             self.texture = self.textures[TEXTURE_LEFT]
         elif self.change_x > 0:
             self.texture = self.textures[TEXTURE_RIGHT]
 
+    """This function will move the enemy sprite towards the player sprite."""
     def follow_sprite(self, player_sprite):
-        """
-        This function will move the current sprite towards whatever
-        other sprite is specified as a parameter.
-        We use the 'min' function here to get the sprite to line up with
-        the target sprite, and not jump around if the sprite is not off
-        an exact multiple of MOVEMENT_SPEED.
-        """
-
-        if self.center_y < player_sprite.center_y:
-            self.center_y += min(MOVEMENT_SPEED, player_sprite.center_y - self.center_y)
-        elif self.center_y > player_sprite.center_y:
+        # Makes adjustments vertically.
+        if self.center_y < player_sprite.center_y: # Needs to move up
+            self.center_y += min(MOVEMENT_SPEED * 3, player_sprite.center_y - self.center_y) # Purposefully multiplied MOVEMENT_SPEED so that the creeper would hop. We liked the hoppy creeper.
+        elif self.center_y > player_sprite.center_y: # Needs to move down
             self.center_y -= min(MOVEMENT_SPEED, self.center_y - player_sprite.center_y)
 
-        if self.center_x < player_sprite.center_x:
+        # Makes adjustments horizontally.
+        if self.center_x < player_sprite.center_x: # Needs to move right
             self.center_x += min(MOVEMENT_SPEED, player_sprite.center_x - self.center_x)
-        elif self.center_x > player_sprite.center_x:
+        elif self.center_x > player_sprite.center_x: # Needs to move left
             self.center_x -= min(MOVEMENT_SPEED, self.center_x - player_sprite.center_x)
