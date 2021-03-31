@@ -122,6 +122,9 @@ class MyGame(arcade.View):
         self.jump_sound = arcade.load_sound("sounds/jump1.wav")
         self.game_over = arcade.load_sound("sounds/gameover1.wav")
 
+        if self.level == 2 and self.player_sprite.health == 5:
+            self.total_time = 100.0
+
 
     def advance_song(self):
         """ Advance our pointer to the next song. This does NOT start the song. """
@@ -155,6 +158,7 @@ class MyGame(arcade.View):
     # ---- Save Game Code: ---- #
     def read_previous_game(self):
         """ Read the text file and make a dico with that contain all the states (position,..) of the previous game"""
+
         d = {}
         with open("previous_game.txt") as f:
             for line in f:
@@ -398,7 +402,7 @@ class MyGame(arcade.View):
         #if self.total_coins == 19:
         #        arcade.draw_text(won_text, 75, 520, arcade.color.RED, 40)
         #        arcade.draw_text(won_text, 75, 520, arcade.color.GLITTER, 41)
-        arcade.draw_text(Time, 20 + self.view_left, 750, arcade.color.BLACK, 26)
+        arcade.draw_text(Time, 20 + self.view_left, 750, arcade.color.YELLOW_ROSE, 26)
         arcade.draw_text("lives : "+str(self.player_sprite.health), 625 + self.view_left, 750, arcade.color.RED, 32)
 
         #####---- This calls the 'Game Over' Viewport ----#####
@@ -447,6 +451,7 @@ class MyGame(arcade.View):
         #coin_hit_list = arcade.check_for_collision_with_list(self.player_sprite,self.coin_list
         self.total_time -= delta_time
 
+        self.player_sprite.update()
         if self.player_sprite.top < 0 or self.total_time < 0:
             if self.player_sprite.health > 1 and self.total_time > 0: # if the player falls off the screen
                 self.view_left = 0
