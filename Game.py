@@ -1,6 +1,7 @@
 from typing import Optional
 import arcade #py -m venv venv
 import random, os, math, time
+from os import path
 from Player_Obj import Player
 from Enemy_Obj import Enemy
 from Problem_Obj import Problems
@@ -87,8 +88,9 @@ class MyGame(arcade.View):
         self.enemy_hit_list = None
         self.enemy_sprite = None
 
-        # Player Prograssion:
+        # Player Progression:
         self.score = 0
+        self.high_score = 0
         self.total_time = 90.0
         self.interacion = []
 
@@ -172,10 +174,22 @@ class MyGame(arcade.View):
         self.total_time = float(states_dico["total_time"])
         # score
         self.score = int(states_dico["score"])
+        # high score
+        self.high_score = int(states_dico["high_score"])
         # level
         self.level = int(states_dico["level"])
+        self.setup(self.level) # Needed to actually start at level 2 from the saves.
 
         self.continue_first_lunch = True # make that the set_viewport is called
+
+    """Used to read in only the high score"""
+    def load_high_score(self):
+         # Check for previous game
+        if path.exists("previous_game.txt"):
+            states_dico = self.read_previous_game()
+            self.high_score = int(states_dico["high_score"])
+        else:
+            return
 
 
     def save_game(self, delta_time):
@@ -188,6 +202,8 @@ class MyGame(arcade.View):
         f.write(f"total_time={int(self.total_time)}\n")
 
         f.write(f"score={self.score}\n")
+
+        f.write(f"high_score={self.high_score}\n")
 
         f.write(f"level={self.level}\n")
 
@@ -314,8 +330,10 @@ class MyGame(arcade.View):
                                                             GRAVITY)
 
         if lunch_type == "continue":
-            self.load_previous_game()
+            if path.exists("previous_game.txt"): # Check for file to avoid errors - Will just create a new game if there is no save file
+                self.load_previous_game()
         else:
+            self.load_high_score() # Set high score
             self.continue_first_lunch = False
 
         # make that the game is saved every X sec
@@ -356,6 +374,10 @@ class MyGame(arcade.View):
         # --- Draw a Coin collection Counter, UI Element --- #
         score_text = f"Score: {self.score}"
         arcade.draw_text(score_text, 10 + self.view_left, 10 + self.view_bottom, arcade.csscolor.WHITE, 18)
+
+        # --- Draw a High Score feature --- #
+        score_text = f"High Score: {self.high_score}"
+        arcade.draw_text(score_text, self.view_left + SCREEN_WIDTH - 140, 10 + self.view_bottom, arcade.csscolor.YELLOW, 18)
 
         # ---- Enemy Interaction ---- #
         for enemy in self.enemy_hit_list:
@@ -446,9 +468,10 @@ class MyGame(arcade.View):
             self.advance_song()
             self.play_song()
             
+        #Gets how far into the song we are at.
         position = self.music.get_stream_position(self.current_player)
-        # Trying to set up for allowing the time to reset on level 2
-        if self.level == 2 and self.player_sprite.health == 5 and position == 0.0 :
+        # Reset the time on level 2. Will currently reset when you load a game saved on level 2.
+        if self.level == 2 and self.player_sprite.health == 5 and position < 1.0:
             self.total_time = 100.0
 
         """
@@ -507,6 +530,11 @@ class MyGame(arcade.View):
             coin.remove_from_sprite_lists()
             arcade.play_sound(self.collect_coin_sound)
             self.score += 1
+
+        # Sets the high score
+        if self.score > self.high_score:
+            self.high_score = self.score
+
 
         # ------> Player Death Event <------ #
         changed_viewport = False # - Setting the View to the Game, for now...
