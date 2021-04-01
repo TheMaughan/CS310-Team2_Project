@@ -26,7 +26,6 @@ class PauseView(arcade.View):
         self.button_question2 = {"text": "Q2", "pos": (SCREEN_WIDTH/3, 90), "size": (140, 60)}
         self.button_question3 = {"text": "Q3", "pos": (600, 180), "size": (140, 60)}
         self.button_question4 = {"text": "Q4", "pos": (600, 90), "size": (140, 60)}
-        #self.ui_manager = UIManager()
         # state of the button (if the mouse is on -> True)
         self.button_states = {"Q1": False, "Q2": False, "Q3": False ,"Q4": False }
         self.mouse_pos = (0,0)
@@ -120,8 +119,6 @@ class PauseView(arcade.View):
         # user has 2 tries to guess. Will exit the pause screen here
         if self.button_states[str(self.q1)] == True:
             if self.questionwithans == 0:
-                self.gt_score += 50
-                print(self.gt_score)
                 self.window.show_view(self.game_view)
             else:
                 self.tries -= 1
@@ -129,8 +126,6 @@ class PauseView(arcade.View):
                 self.window.show_view(self.game_view)
         if self.button_states[str(self.q2)] == True:
             if self.questionwithans == 1: 
-                self.gt_score += 50
-                print(self.gt_score)
                 self.window.show_view(self.game_view)
             else:
                 self.tries -= 1
@@ -138,15 +133,13 @@ class PauseView(arcade.View):
                 self.window.show_view(self.game_view)
         if self.button_states[str(self.q3)] == True:
             if self.questionwithans == 2: 
-                self.gt_score += 50
                 self.window.show_view(self.game_view)
             else:
                 self.tries -= 1
             if self.tries == 0:
                 self.window.show_view(self.game_view)
         if self.button_states[str(self.q4)] == True:
-            if self.questionwithans == 3: 
-                self.gt_score += 50 
+            if self.questionwithans == 3:  
                 self.window.show_view(self.game_view)
             else:
                 self.tries -= 1
