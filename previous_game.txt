@@ -1,4 +1,4 @@
-player_sprite.position=163,327
+player_sprite.position=647,567
 total_time=0
 score=14
 level=2
