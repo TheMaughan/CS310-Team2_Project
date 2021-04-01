@@ -3,7 +3,7 @@ import random
 
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
-
+# <--- Handles Math question and displays the questions and answer --- >
 class PauseView(arcade.View):
     def __init__(self, game_view):
         super().__init__()
@@ -38,23 +38,23 @@ class PauseView(arcade.View):
 
         arcade.set_viewport(0, SCREEN_WIDTH - 1, 0, SCREEN_HEIGHT - 1)
     
+    # <--- Sets a up the buttons with the question unless they have the answer --->
     def handlequestion(self, question):
             if question == 0:
                 if self.questionwithans == 0:
                     return
                 else:
-                    self.q1 = self.set_first
-                    #print("$$$$$$$$$$$")
+                    self.q1 = self.set_first + self.second_val + 2
             if question == 1:
                 if self.questionwithans == 1:
                     return
                 else:
-                    self.q2 = self.set_second
+                    self.q2 = self.set_second - self.second_val + 1
             if question == 2:
                 if self.questionwithans == 2:
                     return
                 else:
-                    self.q3 = self.set_first + self.set_second + 2
+                    self.q3 = self.set_first * self.set_second + 2
 
             if question == 3:
                 if self.questionwithans == 3:
@@ -71,27 +71,17 @@ class PauseView(arcade.View):
         # and saved in self.game_view.
         player_sprite = self.game_view.player_sprite
         player_sprite.draw()
-
-        # draw an orange filter over him
-        """
-        arcade.draw_lrtb_rectangle_filled(left=player_sprite.left,
-                                          right=player_sprite.right,
-                                          top=player_sprite.top,
-                                          bottom=player_sprite.bottom,
-                                          color=arcade.color.LIGHT_BLUE + (200,))
-        """
+    
         #changed the x and y so the question always was above the player
         arcade.draw_text(self.set_question, SCREEN_WIDTH/2 + 30, SCREEN_HEIGHT/2,
                          arcade.color.BLACK, font_size=50, anchor_x="center")
-        arcade.draw_text(f"You have {self.tries} trie(s) left", SCREEN_WIDTH/2 + 30, SCREEN_HEIGHT/2 - 40,
-                         arcade.color.BLACK, font_size=50, anchor_x="center")
+        arcade.draw_text(f"You have {self.tries} trie(s) left", SCREEN_WIDTH/2 + 30, SCREEN_HEIGHT/2 - 65,
+                         arcade.color.BLACK, font_size=30, anchor_x="center")
 
-        
-        #print(self.first_val)
+        # <--- Handles which button will hold the answer ---> 
         if self.run == True:
             
             x = random.randrange(4)
-            print("x = ", x)
             if x == 0:
                 self.q1 = self.set_answer
                 self.questionwithans = 0
@@ -108,13 +98,13 @@ class PauseView(arcade.View):
             for i in range (4):
                 self.handlequestion(i)
             self.run = False
-
+        # makes the buttons
         self.button_question1 = {"text": str(self.q1), "pos": (SCREEN_WIDTH/3, 180), "size": (140, 60)}
         self.button_question2 = {"text": str(self.q2), "pos": (SCREEN_WIDTH/3, 90), "size": (140, 60)}
         self.button_question3 = {"text": str(self.q3), "pos": (600, 180), "size": (140, 60)}
         self.button_question4 = {"text": str(self.q4), "pos": (600, 90), "size": (140, 60)}
 
-
+        # adds each button 
         self.button(self.button_question1)
         self.button(self.button_question2)
         self.button(self.button_question3)
@@ -127,40 +117,43 @@ class PauseView(arcade.View):
         
     def on_mouse_press(self, _x, _y, _button, _modifiers):
         """ If the user presses the mouse button, start the game. """
+        # user has 2 tries to guess. Will exit the pause screen here
         if self.button_states[str(self.q1)] == True:
-            if self.questionwithans == 0: 
+            if self.questionwithans == 0:
+                self.gt_score += 50
+                print(self.gt_score)
                 self.window.show_view(self.game_view)
             else:
-                print("wrong")
                 self.tries -= 1
             if self.tries == 0:
                 self.window.show_view(self.game_view)
         if self.button_states[str(self.q2)] == True:
             if self.questionwithans == 1: 
+                self.gt_score += 50
+                print(self.gt_score)
                 self.window.show_view(self.game_view)
             else:
-                print("wrong")
                 self.tries -= 1
             if self.tries == 0:
                 self.window.show_view(self.game_view)
         if self.button_states[str(self.q3)] == True:
             if self.questionwithans == 2: 
+                self.gt_score += 50
                 self.window.show_view(self.game_view)
             else:
-                print("wrong")
                 self.tries -= 1
             if self.tries == 0:
                 self.window.show_view(self.game_view)
         if self.button_states[str(self.q4)] == True:
             if self.questionwithans == 3: 
+                self.gt_score += 50 
                 self.window.show_view(self.game_view)
             else:
-                print("wrong")
                 self.tries -= 1
             if self.tries == 0:
                 self.window.show_view(self.game_view)
 
-
+    # <-- adds style to the button --->
     def button(self, attributes):
         self.button_states[attributes["text"]] = False
         color = arcade.color.RED_BROWN
@@ -178,15 +171,6 @@ class PauseView(arcade.View):
         arcade.draw_text(attributes["text"], attributes["pos"][0], attributes["pos"][1],
                          arcade.color.WHITE, font_size=24, anchor_x="center", anchor_y="center")
 
-    """
-    def on_key_press(self, key, _modifiers):
-        self.ui_manager.unregister_handlers()
-        if key == arcade.key.ESCAPE:   # resume game
-            self.window.show_view(self.game_view)
-        elif key == arcade.key.ENTER:  # reset game
-            game = GameView()
-            self.window.show_view(game)
-    """
     def set_question(self):
         return self.question
 
