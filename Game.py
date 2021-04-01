@@ -386,17 +386,13 @@ class MyGame(arcade.View):
             answer = self.interacion[len(self.enemy_hit_list)-1].get_answer()
             firstnum = self.interacion[len(self.enemy_hit_list)-1].get_first()
             secondnum = self.interacion[len(self.enemy_hit_list)-1].get_second()
-            
+            #call the pause menu
             pause = PauseView(self)
             pause.set_question = question
             pause.set_answer = answer
             pause.set_first = firstnum
             pause.set_second = secondnum
             self.window.show_view(pause)
-            """if int(guess) != answer:
-                self.player_sprite.health -= 1
-            else:
-                break"""
 
         arcade.draw_text(Time, 20 + self.view_left, 750, arcade.color.YELLOW_ROSE, 26)
         arcade.draw_text("lives : "+str(self.player_sprite.health), 625 + self.view_left, 750, arcade.color.RED, 32)
