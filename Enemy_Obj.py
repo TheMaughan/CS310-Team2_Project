@@ -1,3 +1,4 @@
+from Player_Obj import DEAD_ZONE
 import arcade
 
 MOVEMENT_SPEED = 1
@@ -5,27 +6,44 @@ MOVEMENT_SPEED = 1
 TEXTURE_LEFT = 0
 TEXTURE_RIGHT = 1
 
+SCALING = 0.2
+DEAD_ZONE = 0.1
+
+def load_texture_pair(filename):
+    return [
+        arcade.load_texture(filename),
+        arcade.load_texture(filename, flipped_horizontally=True)
+    ]
 
 """ Enemy Class """
 class Enemy(arcade.Sprite):
 
-    def __init__(self, image, scale):
+    def __init__(self):
 
-        super().__init__(image, scale)
+        super().__init__()
         # Create a variable to hold our speed. 'angle' is created by the parent
-        self.speed = 0
-        self.scale = scale
-        self.textures = []
 
+        self.speed = 0
+        self.scale = SCALING * 0.2
         # Load a left facing texture and a right facing texture.
         # flipped_horizontally=True will mirror the image we load.
-        texture = arcade.load_texture(image)
-        self.textures.append(texture)
-        texture = arcade.load_texture(image, flipped_horizontally=True)
-        self.textures.append(texture)
+        image = f"Sprites\\flipped"
+        self.creep_pair = arcade.load_texture_pair(f"{image}_creeper.png", hit_box_algorithm="Detailed")
+        #self.textures.append(self.texture)
 
         # By default, face right.
-        self.texture = texture
+        self.character_face_direction = TEXTURE_RIGHT
+        self.texture = self.creep_pair[0]
+
+        self.hit_box = self.texture.hit_box_points
+
+    def pymunk_moved(self, physics_engine, dx, dy, d_angle):
+        # Figure out if we need to flip face left or right
+        if dx < -DEAD_ZONE and self.character_face_direction == TEXTURE_RIGHT:
+            self.character_face_direction = TEXTURE_LEFT
+        elif dx > DEAD_ZONE and self.character_face_direction == TEXTURE_LEFT:
+            self.character_face_direction = TEXTURE_RIGHT
+        
 
     # Reset position for when the enemy falls off the edge.
     def reset_pos(self):

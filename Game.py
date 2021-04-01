@@ -65,28 +65,30 @@ class MyGame(arcade.View):
         self.physics_engine: Optional[arcade.PymunkPhysicsEngine] = None
 
         # Track the current state of what key is pressed
-        self.left_pressed = False
-        self.right_pressed = False
-        self.up_pressed = False
-        self.down_pressed = False
-        self.jump_needs_reset = False
+        self.left_pressed: bool = False
+        self.right_pressed: bool = False
+        self.up_pressed: bool = False
+        self.down_pressed: bool = False
+        self.jump_needs_reset: bool = False
 
         # Variables that will hold sprite lists
         self.player_list: Optional[arcade.SpriteList] = None
-        self.player_sprite = None
+        self.player_sprite = Optional[Player]
 
         # Made in the Tiled Mapmaker:
-        self.wall_list = None
-        self.coin_list = None
-        #self.ladder_list = None
-        self.foreground_list = None
-        self.background_list = None
-        self.dont_touch_list = None
+        # I don't know exactly what 'Optional' does, I assume that it helps with processing the game and
+            # helps with writing less code.
+        self.wall_list: Optional[arcade.SpriteList] = None
+        self.coin_list: Optional[arcade.SpriteList] = None
+        self.ladder_list: Optional[arcade.SpriteList] = None
+        self.foreground_list: Optional[arcade.SpriteList] = None
+        self.background_list: Optional[arcade.SpriteList] = None
+        self.dont_touch_list: Optional[arcade.SpriteList] = None
 
         # Set up sprites
         self.player_sprite: Optional[Player] = None
         self.enemy_hit_list = None
-        self.enemy_sprite = None
+        self.enemy_sprite: Optional[Enemy] = None
 
         # Player Progression:
         self.score = 0
@@ -226,11 +228,6 @@ class MyGame(arcade.View):
         # Create the map layer lists
         self.enemy_list = arcade.SpriteList()
 
-        self.foreground_list = arcade.SpriteList()
-        self.background_list = arcade.SpriteList()
-        self.wall_list = arcade.SpriteList()
-        self.coin_list = arcade.SpriteList()
-
         # Set up the player Change this
         self.player_sprite = Player()
         self.player_list = arcade.SpriteList()
@@ -241,7 +238,7 @@ class MyGame(arcade.View):
 
         # Set up for the Enemy Sprite.
         self.enemy_hit_list = arcade.check_for_collision_with_list(self.player_sprite, self.enemy_list)
-        self.enemy_sprite = Enemy("Sprites\\flipped_creeper.png", SPRITE_SCALING *.2)
+        self.enemy_sprite = Enemy()
         self.enemy_sprite.center_x = 250
         self.enemy_sprite.center_y = 125
         self.enemy_list.append(self.enemy_sprite)
@@ -326,8 +323,8 @@ class MyGame(arcade.View):
                                                              self.wall_list,
                                                              GRAVITY)
         self.physics_engine_enemy = arcade.PhysicsEnginePlatformer(self.enemy_sprite,
-                                                             self.wall_list,
-                                                            GRAVITY)
+                                                                    self.wall_list,
+                                                                    GRAVITY)
 
         if lunch_type == "continue":
             if path.exists("previous_game.txt"): # Check for file to avoid errors - Will just create a new game if there is no save file
@@ -374,7 +371,12 @@ class MyGame(arcade.View):
         # --- Draw a Coin collection Counter, UI Element --- #
         score_text = f"Score: {self.score}"
         arcade.draw_text(score_text, 10 + self.view_left, 10 + self.view_bottom, arcade.csscolor.WHITE, 18)
-
+        """
+        # Display position:
+        self.position = int(self.player_sprite.changed_x), int(self.player_sprite.changed_y)
+        position_text = f"Position: {self.position}"
+        arcade.draw_text(position_text, 50 + self.view_left, 50 + self.view_bottom, arcade.csscolor.WHITE, 18)
+        """
         # --- Draw a High Score feature --- #
         score_text = f"High Score: {self.high_score}"
         arcade.draw_text(score_text, self.view_left + SCREEN_WIDTH - 140, 10 + self.view_bottom, arcade.csscolor.YELLOW, 18)

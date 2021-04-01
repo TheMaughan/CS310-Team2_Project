@@ -28,7 +28,7 @@ RIGHT_FACING = 0
 LEFT_FACING = 1
 
 # How many pixels to move before we change the texture in the walking animation
-DISTANCE_TO_CHANGE_TEXTURE = 20
+DISTANCE_TO_CHANGE_TEXTURE = 3
 UPDATES_PER_FRAME = 5  
 
 def load_texture_pair(filename):
@@ -77,38 +77,13 @@ class Player(arcade.Sprite):
         self.set_hit_box(self.texture.hit_box_points)
         
         #distance traveled since changed texture
-        #self.x_odometer = 0
-
-    def pymunk_moved(self, physics_engine, dx, dy, d_angle):
-        
-        if dx < -DEAD_ZONE and self.character_face_direction == RIGHT_FACING:
-            self.character_face_direction = LEFT_FACING
-        elif dx > DEAD_ZONE and self.character_face_direction == LEFT_FACING:
-            self.character_face_direction = RIGHT_FACING
-
-        is_on_ground = physics_engine.is_on_ground(self)
-
-        self.x_odometer += dx
-
-        if not is_on_ground:
-            if dy > DEAD_ZONE:
-                self.texture = self.jump_texture_pair[self.character_face_direction]
-                return
-            elif dy < -DEAD_ZONE:
-                self.texture = self.fall_texture_pair[self.character_face_direction]
-                return
-
-        if abs(dx) <= DEAD_ZONE:
-            self.texture = self.idle_texture_pair[self.character_face_direction]
-            return
-
-        if abs(self.x_odometer) > DISTANCE_TO_CHANGE_TEXTURE:
-            self.x_odometer = 0
-
-            self.cur_texture += 1
-            if self.cur_texture > 2:
-                self.cur_texture = 0
-            self.texture = self.walk_textures[self.cur_texture][self.character_face_direction]
+        self.x_odometer = 0
+        self.y_odometer = 0
+    """
+    def get_pos(self):
+        self.dx = int(self.center_x.position[0])
+        self.dy = int(self.center_y.position[1])
+    """
 
     def reset_pos(self):
         self.center_x = 100
@@ -146,31 +121,52 @@ class Player(arcade.Sprite):
         #self.center_x += -self.speed * math.sin(angle_rad)
         #self.center_y += -self.speed * math.cos(angle_rad)		#change
     
-    def update_animation(self, delta_time: float = 1/120):
+    def update_animation(self, delta_time):
+        #dx = self.change_x
+        #dy = self.change_y
         # Figure out if we need to flip face left or right
         if self.change_x < 0 and self.character_face_direction == RIGHT_FACING:
             self.character_face_direction = LEFT_FACING
         elif self.change_x > 0 and self.character_face_direction == LEFT_FACING:
             self.character_face_direction = RIGHT_FACING
 
+        # Add to the odometer how far we've moved
+        self.x_odometer += self.change_x
+        self.y_odometer += self.change_y
+
+
+        """
+        # Figure out if we need to flip face left or right
+        if self.change_x < 0 and self.character_face_direction == RIGHT_FACING:
+            self.character_face_direction = LEFT_FACING
+        elif self.change_x > 0 and self.character_face_direction == LEFT_FACING:
+            self.character_face_direction = RIGHT_FACING
+        """  
+
         # Jumping animation
-        if self.change_y > 0 and not self.is_on_ladder:
+        if self.change_y > 0:
             self.texture = self.jump_texture_pair[self.character_face_direction]
             return
-        elif self.change_y < 0 and not self.is_on_ladder:
+        elif self.change_y < 0:
             self.texture = self.fall_texture_pair[self.character_face_direction]
             return
-
+              
         # Idle animation
-        if self.change_x == 0 and self.change_y == 0:
+        if abs(self.change_x) <= DEAD_ZONE:
             self.texture = self.idle_texture_pair[self.character_face_direction]
             return
 
-        # Walking animation
-        self.cur_texture += 1
-        if self.cur_texture > 2: #* UPDATES_PER_FRAME:
-            self.cur_texture = 0
-        self.texture = self.walk_textures[self.cur_texture][self.character_face_direction]
+        # Have we moved far enough to change the texture?
+        if abs(self.x_odometer) > DISTANCE_TO_CHANGE_TEXTURE:
+
+            # Reset the odometer
+            self.x_odometer = 0
+
+            # Advance the walking animation
+            self.cur_texture += 1
+            if self.cur_texture > 2:
+                self.cur_texture = 0
+            self.texture = self.walk_textures[self.cur_texture][self.character_face_direction]
 
         #frame = self.cur_texture // UPDATES_PER_FRAME
         #direction = self.character_face_direction

@@ -1,4 +1,5 @@
-player_sprite.position=647,567
-total_time=0
-score=14
-level=2
+player_sprite.position=666,161
+total_time=39
+score=11
+high_score=21
+level=1
