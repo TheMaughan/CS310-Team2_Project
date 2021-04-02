@@ -8,7 +8,7 @@ class PauseView(arcade.View):
     def __init__(self, game_view):
         super().__init__()
         self.game_view = game_view
-        self.background = arcade.get_window().background_color
+        self.background = arcade.get_window().background_color # Takes the current color of the background before it's changed
         self.operator = 0
         self.first_val = 0
         self.second_val = 0
@@ -120,7 +120,7 @@ class PauseView(arcade.View):
         # user has 2 tries to guess. Will exit the pause screen here
         if self.button_states[str(self.q1)] == True:
             if self.questionwithans == 0:
-                arcade.set_background_color(self.background)
+                arcade.set_background_color(self.background) # Change back the background color once we are done.
                 self.window.show_view(self.game_view)
             else:
                 self.tries -= 1
