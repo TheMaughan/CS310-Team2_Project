@@ -247,7 +247,7 @@ class MyGame(arcade.View):
         #self.enemy = arcade.AnimatedTimeSprite()
 
         # Set up for the music. Includes a list with each song title, sets to the current level, and then plays song.
-        self.music_list = ["Sprites\Old_Game_David_Fesliyan.mp3", "sounds\Super Mario Bros. Theme - 8-Bit Dance Remix.mp3", "Sprites\sawsquarenoise-Final_Boss.mp3"]
+        self.music_list = ["sounds\Old_Game_David_Fesliyan.mp3", "sounds\Super Mario Bros. Theme - 8-Bit Dance Remix.mp3", "sounds\sawsquarenoise-Final_Boss.mp3", "sounds\Jim Hall - Trapped In the Upside Down.mp3"]
         self.level_music()
         self.play_song() # Get the music going!
 
@@ -379,7 +379,7 @@ class MyGame(arcade.View):
         """
         # --- Draw a High Score feature --- #
         score_text = f"High Score: {self.high_score}"
-        arcade.draw_text(score_text, self.view_left + SCREEN_WIDTH - 140, 10 + self.view_bottom, arcade.csscolor.YELLOW, 18)
+        arcade.draw_text(score_text, self.view_left + SCREEN_WIDTH - 140, 10 + self.view_bottom, arcade.csscolor.WHITE, 18)
 
         # ---- Enemy Interaction ---- #
         for enemy in self.enemy_hit_list:
