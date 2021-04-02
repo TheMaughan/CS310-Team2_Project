@@ -73,7 +73,7 @@ class MyGame(arcade.View):
 
         # Variables that will hold sprite lists
         self.player_list: Optional[arcade.SpriteList] = None
-        self.player_sprite = Optional[Player]
+        #self.player_sprite = Optional[Player]
 
         # Made in the Tiled Mapmaker:
         # I don't know exactly what 'Optional' does, I assume that it helps with processing the game and
@@ -178,6 +178,8 @@ class MyGame(arcade.View):
         self.score = int(states_dico["score"])
         # high score
         self.high_score = int(states_dico["high_score"])
+        # health of the player
+        self.player_sprite.health = int(states_dico["lives"])
         # level
         self.level = int(states_dico["level"])
         self.setup(self.level) # Needed to actually start at level 2 from the saves.
@@ -206,6 +208,8 @@ class MyGame(arcade.View):
         f.write(f"score={self.score}\n")
 
         f.write(f"high_score={self.high_score}\n")
+
+        f.write(f"lives={self.player_sprite.health}\n")
 
         f.write(f"level={self.level}\n")
 
@@ -389,7 +393,7 @@ class MyGame(arcade.View):
             firstnum = self.interacion[len(self.enemy_hit_list)-1].get_first()
             secondnum = self.interacion[len(self.enemy_hit_list)-1].get_second()
             #call the pause menu
-            pause = PauseView(self)
+            pause = PauseView(self, self.player_sprite)
             pause.set_question = question
             pause.set_answer = answer
             pause.set_first = firstnum

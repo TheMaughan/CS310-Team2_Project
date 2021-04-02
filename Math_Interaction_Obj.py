@@ -5,8 +5,9 @@ SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
 # <--- Handles Math question and displays the questions and answer --- >
 class PauseView(arcade.View):
-    def __init__(self, game_view):
+    def __init__(self, game_view, player_sprite):
         super().__init__()
+        self.player_sprite = player_sprite # Transfer over the player object
         self.game_view = game_view
         self.background = arcade.get_window().background_color # Takes the current color of the background before it's changed
         self.operator = 0
@@ -125,6 +126,8 @@ class PauseView(arcade.View):
             else:
                 self.tries -= 1
             if self.tries == 0:
+                if self.questionwithans != 0:
+                    self.player_sprite.health -= 1
                 arcade.set_background_color(self.background)
                 self.window.show_view(self.game_view)
         if self.button_states[str(self.q2)] == True:
@@ -134,6 +137,8 @@ class PauseView(arcade.View):
             else:
                 self.tries -= 1
             if self.tries == 0:
+                if self.questionwithans != 1:
+                    self.player_sprite.health -= 1
                 arcade.set_background_color(self.background)
                 self.window.show_view(self.game_view)
         if self.button_states[str(self.q3)] == True:
@@ -143,6 +148,9 @@ class PauseView(arcade.View):
             else:
                 self.tries -= 1
             if self.tries == 0:
+                if self.questionwithans != 2:
+                    self.player_sprite.health -= 1
+                arcade.set_background_color(self.background)
                 self.window.show_view(self.game_view)
         if self.button_states[str(self.q4)] == True:
             if self.questionwithans == 3: 
@@ -151,6 +159,8 @@ class PauseView(arcade.View):
             else:
                 self.tries -= 1
             if self.tries == 0:
+                if self.questionwithans !=3:
+                    self.player_sprite.health -= 1
                 arcade.set_background_color(self.background)
                 self.window.show_view(self.game_view)
 
