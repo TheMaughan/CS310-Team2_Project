@@ -38,7 +38,7 @@ class InstructionView(arcade.View):
         """From https://www.fesliyanstudios.com/royalty-free-music/downloads-c/8-bit-music/6
         Another Website: https://freemusicarchive.org/genre/Chiptune"""
         # Basically sets up the directory to the music.
-        self.music = arcade.Sound("Sprites\Old_Game_David_Fesliyan.mp3", streaming=True) # Streaming will tell the program to stream instead of making a copy of the file.
+        self.music = arcade.Sound("sounds\Old_Game_David_Fesliyan.mp3", streaming=True) # Streaming will tell the program to stream instead of making a copy of the file.
         # Creates the music player, using the stored information from music. 
         self.current_player = self.music.play(MUSIC_VOLUME)
         # Gives a quick pause in the music. If we did not include this it would see the song as being done and skip through it.
