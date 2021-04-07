@@ -17,9 +17,6 @@ JUMP_SPEED = 11
 
 VIEWPORT_MARGIN = 250
 
-TEXTURE_LEFT = 0
-TEXTURE_RIGHT = 1
-
 # Close enough to not-moving to have the animation go to idle.
 DEAD_ZONE = 0.1
 
@@ -156,6 +153,7 @@ class Player(arcade.Sprite):
             self.texture = self.idle_texture_pair[self.character_face_direction]
             return
 
+        
         # Have we moved far enough to change the texture?
         if abs(self.x_odometer) > DISTANCE_TO_CHANGE_TEXTURE:
 

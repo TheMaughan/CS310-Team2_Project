@@ -84,6 +84,8 @@ class MyGame(arcade.View):
         self.foreground_list: Optional[arcade.SpriteList] = None
         self.background_list: Optional[arcade.SpriteList] = None
         self.dont_touch_list: Optional[arcade.SpriteList] = None
+        # Enemies placed on the map:
+        self.map_enemy_list: Optional[arcade.SpriteList] = None
 
         # Set up sprites
         self.player_sprite: Optional[Player] = None
@@ -252,18 +254,6 @@ class MyGame(arcade.View):
         self.play_song() # Get the music going!
 
         #---------------------------- Map Code ----------------------------#
-        # Name of the layer in the file that has our platforms/walls
-        platforms_layer_name = 'Platforms'
-        # Name of the layer containing moving platforms:
-        moving_platforms_layer_name = 'Moving Platforms'
-        # Name of the layer that has items for pick-up
-        coins_layer_name = 'Coins'
-        # Name of the layer that has items for foreground
-        foreground_layer_name = 'Foreground'
-        # Name of the layer that has items for background
-        background_layer_name = 'Background'
-        # Name of the layer that has items we shouldn't touch
-        dont_touch_layer_name = "Don't Touch"
         # --- Load File --- #
         # Name of map file to load
         map_name = f"Sprites/level_{level}.tmx"
@@ -278,18 +268,18 @@ class MyGame(arcade.View):
 
         # Platforms & Boundry objects (player cannot move through)
         self.wall_list = arcade.tilemap.process_layer(my_map,
-                                                      platforms_layer_name,
+                                                      'Platforms',
                                                       TILE_SCALING,
-                                                      use_spatial_hash=True)
+                                                      use_spatial_hash=True,
+                                                      hit_box_algorithm="Detailed")
         # -- Moving Platforms -- #
-        moving_platforms_list = arcade.tilemap.process_layer(my_map, moving_platforms_layer_name, TILE_SCALING)
+        moving_platforms_list = arcade.tilemap.process_layer(my_map, 'Moving Platforms', TILE_SCALING)
         for sprite in moving_platforms_list:
             self.wall_list.append(sprite) #- All moving platforms are classified as 'walls' in our code.
-            #- Using the same logic for moving platforms, we can also make simple enemies.
 
         # Background Layer:
         self.background_list = arcade.tilemap.process_layer(my_map,
-                                                            background_layer_name,
+                                                            'Background',
                                                             TILE_SCALING)
         #self.ladder_list = arcade.tilemap.process_layer(my_map, "Ladders",
                                                         #TILE_SCALING,
@@ -297,21 +287,36 @@ class MyGame(arcade.View):
 
         # Foreground Layer:
         self.foreground_list = arcade.tilemap.process_layer(my_map,
-                                                            foreground_layer_name,
+                                                            'Foreground',
                                                             TILE_SCALING)
 
         # -- Map Coins -- #
         # Name of the layer that has items for pick-up
         self.coin_list = arcade.tilemap.process_layer(my_map,
-                                                      coins_layer_name,
+                                                      'Coins',
                                                       TILE_SCALING,
                                                       use_spatial_hash=True)
 
         # Insta-death Layer Name (lava, fall off map, spikes, etc.):
         self.dont_touch_list = arcade.tilemap.process_layer(my_map,
-                                                            dont_touch_layer_name,
+                                                            "Don't Touch",
                                                             TILE_SCALING,
                                                             use_spatial_hash=True)
+        # -- Moving Enemies -- #
+        self.map_enemy_list = arcade.tilemap.process_layer(my_map, 'Enemies Layer', TILE_SCALING,
+                                                            use_spatial_hash=True,
+                                                            hit_box_algorithm="Detailed")
+        self.map_enemy_obj = arcade.tilemap.process_layer(my_map, 'Enemies', TILE_SCALING,
+                                                            use_spatial_hash=True,
+                                                            hit_box_algorithm="Detailed")
+        for sprite in self.map_enemy_obj:
+            while sprite.change_x == 0:
+                sprite.change_x = random.randrange(-1, 1)
+            
+            #sprite.change_y = random.randrange(-4, 5)
+            self.map_enemy_list.append(sprite) #- For now...
+        
+
         # --- Other Map Details -- #
         # Set the background color
         if my_map.background_color:
@@ -325,6 +330,13 @@ class MyGame(arcade.View):
         self.physics_engine_enemy = arcade.PhysicsEnginePlatformer(self.enemy_sprite,
                                                                     self.wall_list,
                                                                     GRAVITY)
+
+        """
+        self.physics_engine_map_enemy = arcade.PhysicsEnginePlatformer(self.map_enemy_list,
+                                                                        self.wall_list,
+                                                                        GRAVITY)
+        """
+        
 
         if lunch_type == "continue":
             if path.exists("previous_game.txt"): # Check for file to avoid errors - Will just create a new game if there is no save file
@@ -361,7 +373,8 @@ class MyGame(arcade.View):
         #self.ladder_list.draw() # I don't have any ladders yet, understanding the code for this will take time... maybe later...
 
         self.enemy_list.draw()
-        self.enemy_sprite.draw() # The Enemy layer
+        self.enemy_sprite.draw() 
+        self.map_enemy_list.draw() # The Enemy layer on map
 
         self.player_list.draw() # The Player Layer
         self.player_sprite.draw() # ^
@@ -414,6 +427,7 @@ class MyGame(arcade.View):
 
         self.physics_engine.update()
         self.physics_engine_enemy.update()
+        #self.physics_engine_map_enemy.update()
 
         self.player_sprite.update()
         #self.player_list.update()
@@ -440,6 +454,9 @@ class MyGame(arcade.View):
                 wall.change_y *= -1
             if wall.boundary_bottom and wall.bottom < wall.boundary_bottom and wall.change_y < 0:
                 wall.change_y *= -1
+
+        self.map_enemy_obj.update()
+        self.map_enemy_obj.update_animation()       
 
 
         #coin_hit_list = arcade.check_for_collision_with_list(self.player_sprite,self.coin_list
@@ -492,9 +509,21 @@ class MyGame(arcade.View):
         self.enemy_list.update()
         self.enemy_sprite.follow_sprite(self.player_sprite)
 
+        for sprite in self.map_enemy_list:
+            sprite.center_x += sprite.change_x
+            walls_hit = arcade.check_for_collision_with_list(sprite, self.wall_list)
+            for wall in walls_hit:
+                if sprite.change_x > 0:
+                    sprite.right = wall.left
+                elif sprite.change_x < 0:
+                    sprite.left = wall.right
+            if len(walls_hit) > 0:
+                sprite.change_x *= -1
+            self.enemy_list.append(sprite)
+
         # Calls function from the enemy class to have it follow the player sprite
-        for enemy in self.enemy_list:
-            enemy.follow_sprite(self.player_sprite)
+        #for enemy in self.enemy_list:
+            #enemy.follow_sprite(self.player_sprite)
 
         # If the enemy falls off of the screen then reset it back to it's original position.
         if self.enemy_sprite.top < 0:
